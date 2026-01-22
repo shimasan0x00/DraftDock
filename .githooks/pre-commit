@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+# pre-commit hook: spec.md変更時にspec-reviewer更新のリマインダー
+#
+
+# ステージングされたファイルにplan/spec.mdが含まれるかチェック
+if git diff --cached --name-only | grep -q "^plan/spec.md$"; then
+    echo ""
+    echo "=========================================="
+    echo "[spec-update-reminder]"
+    echo "plan/spec.md が変更されています。"
+    echo ""
+    echo "spec-reviewer の検証項目も更新が必要な可能性があります。"
+    echo "  .claude/agents/spec-reviewer.md"
+    echo ""
+    echo "確認コマンド:"
+    echo "  claude \"spec-reviewerの検証項目をspec.mdと同期して\""
+    echo "=========================================="
+    echo ""
+
+    # コミットは続行（リマインダーのみ）
+    # コミットをブロックしたい場合は exit 1
+fi
+
+exit 0
