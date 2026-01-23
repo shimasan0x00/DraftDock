@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+current_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+
+if [[ "${current_branch}" == "main" ]]; then
+  cat <<'EOF'
+ERROR: You are on 'main'. Pushing from main is prohibited.
+Create a feature branch first:
+  git checkout -b feature/your-task-name
+EOF
+  exit 1
+fi
+
+# Block any push that targets remote main (e.g., refs/heads/main), even from another local branch.
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [[ "${remote_ref}" == "refs/heads/main" ]]; then
+    cat <<'EOF'
+ERROR: Pushing to 'main' is prohibited.
+Push to a feature branch and open a PR instead:
+  git push origin feature/your-task-name
+EOF
+    exit 1
+  fi
+done
+
+exit 0
