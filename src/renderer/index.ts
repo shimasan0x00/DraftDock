@@ -1,155 +1,127 @@
-export {};
+(function() {
+  let textarea: HTMLTextAreaElement;
+  let clearBtn: HTMLButtonElement;
+  let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+  const DEBOUNCE_MS = 500;
 
-interface DraftDockAPI {
-  getDraft: () => Promise<{ content: string; updatedAt: string }>;
-  saveDraft: (content: string) => Promise<boolean>;
-  clearDraft: () => Promise<boolean>;
-  copyToClipboard: (text: string) => Promise<boolean>;
-  hideWindow: () => Promise<boolean>;
-  getSettings: () => Promise<{
-    hotkeys: { toggle: string; copy: string };
-    window: { x: number | null; y: number | null; width: number; height: number };
-  }>;
-  saveSettings: (settings: { toggle: string; copy: string }) => Promise<{ toggle: boolean; copy: boolean }>;
-  closeSettings: () => Promise<boolean>;
-  openSettings: () => Promise<boolean>;
-  onWindowShown: (callback: () => void) => void;
-  onCopyRequested: (callback: () => void) => void;
-  removeAllListeners: () => void;
-}
-
-declare global {
-  interface Window {
-    draftdock: DraftDockAPI;
-  }
-}
-
-let textarea: HTMLTextAreaElement;
-let clearBtn: HTMLButtonElement;
-let saveTimeout: ReturnType<typeof setTimeout> | null = null;
-const DEBOUNCE_MS = 500;
-
-async function loadDraft(): Promise<void> {
-  try {
-    const draft = await window.draftdock.getDraft();
-    textarea.value = draft.content;
-  } catch (error) {
-    console.error('Failed to load draft:', error);
-  }
-}
-
-async function saveDraft(): Promise<void> {
-  try {
-    await window.draftdock.saveDraft(textarea.value);
-  } catch (error) {
-    console.error('Failed to save draft:', error);
-  }
-}
-
-function debouncedSave(): void {
-  if (saveTimeout) {
-    clearTimeout(saveTimeout);
-  }
-  saveTimeout = setTimeout(() => {
-    saveDraft();
-    saveTimeout = null;
-  }, DEBOUNCE_MS);
-}
-
-async function clearDraft(): Promise<void> {
-  textarea.value = '';
-  try {
-    await window.draftdock.clearDraft();
-  } catch (error) {
-    console.error('Failed to clear draft:', error);
-  }
-  textarea.focus();
-}
-
-async function copyAndHide(): Promise<void> {
-  const text = textarea.value;
-  if (text && text.length > 0) {
+  async function loadDraft(): Promise<void> {
     try {
-      await window.draftdock.copyToClipboard(text);
+      const draft = await window.draftdock.getDraft();
+      textarea.value = draft.content;
     } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
+      console.error('Failed to load draft:', error);
     }
   }
-}
 
-function handleGlobalKeydown(event: KeyboardEvent): void {
-  if (event.key === 'Escape') {
-    event.preventDefault();
-    saveDraft();
-    if (window.draftdock) {
-      window.draftdock.hideWindow();
+  async function saveDraft(): Promise<void> {
+    try {
+      await window.draftdock.saveDraft(textarea.value);
+    } catch (error) {
+      console.error('Failed to save draft:', error);
     }
   }
-}
 
-function handleTextareaKeydown(event: KeyboardEvent): void {
-  // Tabキーでタブ文字を挿入
-  if (event.key === 'Tab') {
-    event.preventDefault();
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const value = textarea.value;
-    textarea.value = value.substring(0, start) + '\t' + value.substring(end);
-    textarea.selectionStart = textarea.selectionEnd = start + 1;
-    debouncedSave();
-  }
-}
-
-function focusTextarea(): void {
-  textarea.focus();
-  textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-}
-
-function init(): void {
-  console.log('DraftDock: init started');
-
-  textarea = document.getElementById('draft-textarea') as HTMLTextAreaElement;
-  clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
-
-  if (!textarea || !clearBtn) {
-    console.error('DraftDock: Required DOM elements not found');
-    return;
+  function debouncedSave(): void {
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
+    saveTimeout = setTimeout(() => {
+      saveDraft();
+      saveTimeout = null;
+    }, DEBOUNCE_MS);
   }
 
-  // window.draftdock の存在確認
-  if (!window.draftdock) {
-    console.error('DraftDock: window.draftdock is not defined. Preload script may not be loaded.');
-    return;
+  async function clearDraft(): Promise<void> {
+    textarea.value = '';
+    try {
+      await window.draftdock.clearDraft();
+    } catch (error) {
+      console.error('Failed to clear draft:', error);
+    }
+    textarea.focus();
   }
 
-  console.log('DraftDock: Setting up event listeners');
+  async function copyAndHide(): Promise<void> {
+    const text = textarea.value;
+    if (text && text.length > 0) {
+      try {
+        await window.draftdock.copyToClipboard(text);
+      } catch (error) {
+        console.error('Failed to copy to clipboard:', error);
+      }
+    }
+  }
 
-  textarea.addEventListener('input', debouncedSave);
-  textarea.addEventListener('keydown', handleTextareaKeydown);
-  clearBtn.addEventListener('click', clearDraft);
+  function handleGlobalKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      saveDraft();
+      if (window.draftdock) {
+        window.draftdock.hideWindow();
+      }
+    }
+  }
 
-  // Escapeキーはウィンドウ全体で検知
-  document.addEventListener('keydown', handleGlobalKeydown);
+  function handleTextareaKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const value = textarea.value;
+      textarea.value = value.substring(0, start) + '\t' + value.substring(end);
+      textarea.selectionStart = textarea.selectionEnd = start + 1;
+      debouncedSave();
+    }
+  }
 
-  window.draftdock.onWindowShown(() => {
-    focusTextarea();
-  });
+  function focusTextarea(): void {
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+  }
 
-  window.draftdock.onCopyRequested(() => {
-    copyAndHide();
-  });
+  function init(): void {
+    console.log('DraftDock: init started');
 
-  loadDraft().then(() => {
-    console.log('DraftDock: Draft loaded');
-    focusTextarea();
-  }).catch((error) => {
-    console.error('DraftDock: Failed to load draft', error);
-  });
-}
+    textarea = document.getElementById('draft-textarea') as HTMLTextAreaElement;
+    clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
 
-// DOMContentLoadedを待つ
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+    if (!textarea || !clearBtn) {
+      console.error('DraftDock: Required DOM elements not found');
+      return;
+    }
+
+    if (!window.draftdock) {
+      console.error('DraftDock: window.draftdock is not defined. Preload script may not be loaded.');
+      return;
+    }
+
+    console.log('DraftDock: Setting up event listeners');
+
+    textarea.addEventListener('input', debouncedSave);
+    textarea.addEventListener('keydown', handleTextareaKeydown);
+    clearBtn.addEventListener('click', clearDraft);
+
+    document.addEventListener('keydown', handleGlobalKeydown);
+
+    window.draftdock.onWindowShown(() => {
+      focusTextarea();
+    });
+
+    window.draftdock.onCopyRequested(() => {
+      copyAndHide();
+    });
+
+    loadDraft().then(() => {
+      console.log('DraftDock: Draft loaded');
+      focusTextarea();
+    }).catch((error) => {
+      console.error('DraftDock: Failed to load draft', error);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
