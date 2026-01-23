@@ -14,12 +14,14 @@ function normalizeAccelerator(key: string): string {
     .map((part) => part.trim())
     .map((part) => {
       const lower = part.toLowerCase();
-      if (lower === 'ctrl' || lower === 'control') return 'Ctrl';
+      // Electronでは'CommandOrControl'で Ctrl/Cmd の両方に対応
+      if (lower === 'ctrl' || lower === 'control') return 'CommandOrControl';
       if (lower === 'shift') return 'Shift';
       if (lower === 'alt') return 'Alt';
-      if (lower === 'meta' || lower === 'cmd' || lower === 'command') return 'Meta';
+      if (lower === 'meta' || lower === 'cmd' || lower === 'command') return 'CommandOrControl';
       if (lower === 'enter' || lower === 'return') return 'Return';
       if (lower === 'escape' || lower === 'esc') return 'Escape';
+      if (lower === 'space') return 'Space';
       return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
     })
     .join('+');

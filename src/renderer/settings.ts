@@ -24,10 +24,10 @@ declare global {
   }
 }
 
-const toggleInput = document.getElementById('toggle-hotkey') as HTMLInputElement;
-const copyInput = document.getElementById('copy-hotkey') as HTMLInputElement;
-const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
-const cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement;
+let toggleInput: HTMLInputElement;
+let copyInput: HTMLInputElement;
+let saveBtn: HTMLButtonElement;
+let cancelBtn: HTMLButtonElement;
 
 let pendingToggleKey = '';
 let pendingCopyKey = '';
@@ -84,35 +84,54 @@ function handleHotkeyInput(event: KeyboardEvent, input: HTMLInputElement, setter
   }
 }
 
-toggleInput.addEventListener('keydown', (event) => {
-  handleHotkeyInput(event, toggleInput, (key) => {
-    pendingToggleKey = key;
-  });
-});
+function init(): void {
+  toggleInput = document.getElementById('toggle-hotkey') as HTMLInputElement;
+  copyInput = document.getElementById('copy-hotkey') as HTMLInputElement;
+  saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
+  cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement;
 
-copyInput.addEventListener('keydown', (event) => {
-  handleHotkeyInput(event, copyInput, (key) => {
-    pendingCopyKey = key;
-  });
-});
+  if (!toggleInput || !copyInput || !saveBtn || !cancelBtn) {
+    console.error('Required DOM elements not found');
+    return;
+  }
 
-saveBtn.addEventListener('click', async () => {
-  try {
-    await window.draftdock.saveSettings({
-      toggle: pendingToggleKey,
-      copy: pendingCopyKey,
+  toggleInput.addEventListener('keydown', (event) => {
+    handleHotkeyInput(event, toggleInput, (key) => {
+      pendingToggleKey = key;
     });
-  } catch (error) {
-    console.error('Failed to save settings:', error);
-  }
-});
+  });
 
-cancelBtn.addEventListener('click', async () => {
-  try {
-    await window.draftdock.closeSettings();
-  } catch (error) {
-    console.error('Failed to close settings:', error);
-  }
-});
+  copyInput.addEventListener('keydown', (event) => {
+    handleHotkeyInput(event, copyInput, (key) => {
+      pendingCopyKey = key;
+    });
+  });
 
-loadSettings();
+  saveBtn.addEventListener('click', async () => {
+    try {
+      await window.draftdock.saveSettings({
+        toggle: pendingToggleKey,
+        copy: pendingCopyKey,
+      });
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    }
+  });
+
+  cancelBtn.addEventListener('click', async () => {
+    try {
+      await window.draftdock.closeSettings();
+    } catch (error) {
+      console.error('Failed to close settings:', error);
+    }
+  });
+
+  loadSettings();
+}
+
+// DOMContentLoadedを待つ
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

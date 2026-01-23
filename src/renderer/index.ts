@@ -24,9 +24,8 @@ declare global {
   }
 }
 
-const textarea = document.getElementById('draft-textarea') as HTMLTextAreaElement;
-const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
-
+let textarea: HTMLTextAreaElement;
+let clearBtn: HTMLButtonElement;
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 const DEBOUNCE_MS = 500;
 
@@ -78,23 +77,11 @@ async function copyAndHide(): Promise<void> {
   }
 }
 
-function handleKeydown(event: KeyboardEvent): void {
+function handleGlobalKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     event.preventDefault();
     saveDraft();
     window.draftdock.hideWindow();
-    return;
-  }
-
-  if (event.key === 'Tab') {
-    event.preventDefault();
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const value = textarea.value;
-    textarea.value = value.substring(0, start) + '  ' + value.substring(end);
-    textarea.selectionStart = textarea.selectionEnd = start + 2;
-    debouncedSave();
-    return;
   }
 }
 
@@ -103,18 +90,37 @@ function focusTextarea(): void {
   textarea.setSelectionRange(textarea.value.length, textarea.value.length);
 }
 
-textarea.addEventListener('input', debouncedSave);
-textarea.addEventListener('keydown', handleKeydown);
-clearBtn.addEventListener('click', clearDraft);
+function init(): void {
+  textarea = document.getElementById('draft-textarea') as HTMLTextAreaElement;
+  clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
 
-window.draftdock.onWindowShown(() => {
-  focusTextarea();
-});
+  if (!textarea || !clearBtn) {
+    console.error('Required DOM elements not found');
+    return;
+  }
 
-window.draftdock.onCopyRequested(() => {
-  copyAndHide();
-});
+  textarea.addEventListener('input', debouncedSave);
+  clearBtn.addEventListener('click', clearDraft);
 
-loadDraft().then(() => {
-  focusTextarea();
-});
+  // Escapeキーはウィンドウ全体で検知
+  document.addEventListener('keydown', handleGlobalKeydown);
+
+  window.draftdock.onWindowShown(() => {
+    focusTextarea();
+  });
+
+  window.draftdock.onCopyRequested(() => {
+    copyAndHide();
+  });
+
+  loadDraft().then(() => {
+    focusTextarea();
+  });
+}
+
+// DOMContentLoadedを待つ
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
