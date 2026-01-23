@@ -68,6 +68,13 @@ export function createMainWindow(): BrowserWindow {
 
   mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
 
+  // 開発時はDevToolsを開く（F12でも開ける）
+  mainWindow.webContents.on('before-input-event', (_event, input) => {
+    if (input.key === 'F12') {
+      mainWindow?.webContents.toggleDevTools();
+    }
+  });
+
   mainWindow.on('close', (event) => {
     event.preventDefault();
     hideMainWindow();
@@ -162,6 +169,13 @@ export function createSettingsWindow(): BrowserWindow {
   });
 
   settingsWindow.loadFile(path.join(__dirname, '..', 'renderer', 'settings.html'));
+
+  // 開発時はDevToolsを開く（F12でも開ける）
+  settingsWindow.webContents.on('before-input-event', (_event, input) => {
+    if (input.key === 'F12') {
+      settingsWindow?.webContents.toggleDevTools();
+    }
+  });
 
   settingsWindow.on('closed', () => {
     settingsWindow = null;

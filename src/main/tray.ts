@@ -5,10 +5,17 @@ import { showMainWindow, createSettingsWindow } from './window';
 let tray: Tray | null = null;
 
 function createTrayIcon(): NativeImage {
-  const iconPath = path.join(__dirname, '..', '..', 'assets', 'tray-icon.png');
+  // dist/main から dist/assets への相対パス
+  const iconPath = path.join(__dirname, '..', 'assets', 'tray-icon.png');
   try {
-    return nativeImage.createFromPath(iconPath);
-  } catch {
+    const icon = nativeImage.createFromPath(iconPath);
+    if (icon.isEmpty()) {
+      console.error('Tray icon is empty, path:', iconPath);
+      return nativeImage.createEmpty();
+    }
+    return icon;
+  } catch (error) {
+    console.error('Failed to load tray icon:', error);
     return nativeImage.createEmpty();
   }
 }

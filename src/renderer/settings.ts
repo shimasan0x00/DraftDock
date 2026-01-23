@@ -85,44 +85,59 @@ function handleHotkeyInput(event: KeyboardEvent, input: HTMLInputElement, setter
 }
 
 function init(): void {
+  console.log('DraftDock Settings: init started');
+
   toggleInput = document.getElementById('toggle-hotkey') as HTMLInputElement;
   copyInput = document.getElementById('copy-hotkey') as HTMLInputElement;
   saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
   cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement;
 
   if (!toggleInput || !copyInput || !saveBtn || !cancelBtn) {
-    console.error('Required DOM elements not found');
+    console.error('DraftDock Settings: Required DOM elements not found');
     return;
   }
+
+  // window.draftdock の存在確認
+  if (!window.draftdock) {
+    console.error('DraftDock Settings: window.draftdock is not defined. Preload script may not be loaded.');
+    return;
+  }
+
+  console.log('DraftDock Settings: Setting up event listeners');
 
   toggleInput.addEventListener('keydown', (event) => {
     handleHotkeyInput(event, toggleInput, (key) => {
       pendingToggleKey = key;
+      console.log('DraftDock Settings: Toggle key set to', key);
     });
   });
 
   copyInput.addEventListener('keydown', (event) => {
     handleHotkeyInput(event, copyInput, (key) => {
       pendingCopyKey = key;
+      console.log('DraftDock Settings: Copy key set to', key);
     });
   });
 
   saveBtn.addEventListener('click', async () => {
+    console.log('DraftDock Settings: Save button clicked', { toggle: pendingToggleKey, copy: pendingCopyKey });
     try {
-      await window.draftdock.saveSettings({
+      const result = await window.draftdock.saveSettings({
         toggle: pendingToggleKey,
         copy: pendingCopyKey,
       });
+      console.log('DraftDock Settings: Save result', result);
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error('DraftDock Settings: Failed to save settings:', error);
     }
   });
 
   cancelBtn.addEventListener('click', async () => {
+    console.log('DraftDock Settings: Cancel button clicked');
     try {
       await window.draftdock.closeSettings();
     } catch (error) {
-      console.error('Failed to close settings:', error);
+      console.error('DraftDock Settings: Failed to close settings:', error);
     }
   });
 

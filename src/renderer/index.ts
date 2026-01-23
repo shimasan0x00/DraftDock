@@ -81,7 +81,22 @@ function handleGlobalKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     event.preventDefault();
     saveDraft();
-    window.draftdock.hideWindow();
+    if (window.draftdock) {
+      window.draftdock.hideWindow();
+    }
+  }
+}
+
+function handleTextareaKeydown(event: KeyboardEvent): void {
+  // Tabキーでタブ文字を挿入
+  if (event.key === 'Tab') {
+    event.preventDefault();
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const value = textarea.value;
+    textarea.value = value.substring(0, start) + '\t' + value.substring(end);
+    textarea.selectionStart = textarea.selectionEnd = start + 1;
+    debouncedSave();
   }
 }
 
@@ -91,15 +106,26 @@ function focusTextarea(): void {
 }
 
 function init(): void {
+  console.log('DraftDock: init started');
+
   textarea = document.getElementById('draft-textarea') as HTMLTextAreaElement;
   clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
 
   if (!textarea || !clearBtn) {
-    console.error('Required DOM elements not found');
+    console.error('DraftDock: Required DOM elements not found');
     return;
   }
 
+  // window.draftdock の存在確認
+  if (!window.draftdock) {
+    console.error('DraftDock: window.draftdock is not defined. Preload script may not be loaded.');
+    return;
+  }
+
+  console.log('DraftDock: Setting up event listeners');
+
   textarea.addEventListener('input', debouncedSave);
+  textarea.addEventListener('keydown', handleTextareaKeydown);
   clearBtn.addEventListener('click', clearDraft);
 
   // Escapeキーはウィンドウ全体で検知
@@ -114,7 +140,10 @@ function init(): void {
   });
 
   loadDraft().then(() => {
+    console.log('DraftDock: Draft loaded');
     focusTextarea();
+  }).catch((error) => {
+    console.error('DraftDock: Failed to load draft', error);
   });
 }
 
