@@ -10,7 +10,7 @@ test.describe('メインウィンドウ', () => {
     expect(url).toContain('index.html');
   });
 
-  test('MW-02: ウィンドウサイズが450x400', async ({ electronApp, mainWindow }) => {
+  test('MW-02: ウィンドウサイズが350x400', async ({ electronApp, mainWindow }) => {
     // メインウィンドウのサイズを取得
     const windowSize = await electronApp.evaluate(({ BrowserWindow }) => {
       const win = BrowserWindow.getAllWindows().find(w => !w.isDestroyed() && w.webContents.getURL().includes('index.html'));
@@ -22,7 +22,7 @@ test.describe('メインウィンドウ', () => {
     });
 
     expect(windowSize).not.toBeNull();
-    expect(windowSize!.width).toBe(450);
+    expect(windowSize!.width).toBe(350);
     expect(windowSize!.height).toBe(400);
   });
 

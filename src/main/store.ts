@@ -31,7 +31,7 @@ const DEFAULT_SETTINGS: Settings = {
   window: {
     x: null,
     y: null,
-    width: 450,
+    width: 350,
     height: 400,
   },
 };

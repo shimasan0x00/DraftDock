@@ -7,7 +7,7 @@ let settingsWindow: BrowserWindow | null = null;
 
 const MIN_WIDTH = 300;
 const MIN_HEIGHT = 250;
-const DEFAULT_WIDTH = 450;
+const DEFAULT_WIDTH = 350;
 const DEFAULT_HEIGHT = 400;
 const SETTINGS_WIDTH = 400;
 const SETTINGS_HEIGHT = 350;

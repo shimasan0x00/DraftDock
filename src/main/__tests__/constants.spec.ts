@@ -9,7 +9,7 @@ describe('Window Constants', () => {
     // これらの値はwindow.tsで定義されている定数と一致する必要がある
     const MIN_WIDTH = 300;
     const MIN_HEIGHT = 250;
-    const DEFAULT_WIDTH = 450;
+    const DEFAULT_WIDTH = 350;
     const DEFAULT_HEIGHT = 400;
     const SETTINGS_WIDTH = 400;
     const SETTINGS_HEIGHT = 350;
@@ -22,7 +22,7 @@ describe('Window Constants', () => {
     });
 
     it('should have valid default window dimensions', () => {
-      expect(DEFAULT_WIDTH).toBe(450);
+      expect(DEFAULT_WIDTH).toBe(350);
       expect(DEFAULT_HEIGHT).toBe(400);
     });
 
