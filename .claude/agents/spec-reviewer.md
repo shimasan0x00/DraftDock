@@ -44,13 +44,13 @@ model: opus
 
 | ID | 項目 | 検証方法 |
 |----|------|---------|
-| U1 | 初期サイズ 350x400 | BrowserWindow設定確認 |
-| U2 | 最小サイズ 300x250 | minWidth/minHeight確認 |
+| U1 | 初期サイズ 800x450 | BrowserWindow設定確認 |
+| U2 | 最小サイズ 400x300 | minWidth/minHeight確認 |
 | U3 | 常に最前面 | alwaysOnTop設定確認 |
 | U4 | 等幅フォント 16px (Cascadia Code等) | CSS確認 |
 | U5 | Escape で非表示 | キーイベント処理確認 |
 | U6 | Tab でタブ挿入 | キーイベント処理確認 |
-| U7 | 設定画面 400x350 固定 | 設定ウィンドウ設定確認 |
+| U7 | 設定画面 450x420 固定 | 設定ウィンドウ設定確認 |
 | U8 | トレイメニュー（開く/設定/終了） | メニュー項目確認 |
 | U9 | メニューバー（ファイル/編集） | Menu API使用確認 |
 | U10 | ボタンにショートカット表記 | ボタンラベル動的更新確認 |
@@ -114,12 +114,12 @@ Step 6: レポート出力
 
 | ID | 項目 | 期待値 | 検証パターン |
 |----|------|--------|-------------|
-| U1 | 初期幅 | 350 | `DEFAULT_WIDTH = 350` |
-| U1 | 初期高 | 400 | `DEFAULT_HEIGHT = 400` |
-| U2 | 最小幅 | 300 | `MIN_WIDTH = 300` |
-| U2 | 最小高 | 250 | `MIN_HEIGHT = 250` |
-| U7 | 設定画面幅 | 400 | `SETTINGS_WIDTH = 400` |
-| U7 | 設定画面高 | 350 | `SETTINGS_HEIGHT = 350` |
+| U1 | 初期幅 | 800 | `DEFAULT_WIDTH = 800` |
+| U1 | 初期高 | 450 | `DEFAULT_HEIGHT = 450` |
+| U2 | 最小幅 | 400 | `MIN_WIDTH = 400` |
+| U2 | 最小高 | 300 | `MIN_HEIGHT = 300` |
+| U7 | 設定画面幅 | 450 | `SETTINGS_WIDTH = 450` |
+| U7 | 設定画面高 | 420 | `SETTINGS_HEIGHT = 420` |
 | U11 | 設定画面メニューなし | - | `setMenu(null)` |
 
 ### フォント設定（src/renderer/index.html）
