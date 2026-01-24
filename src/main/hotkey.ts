@@ -10,7 +10,7 @@ let currentClearKey: string | null = null;
 let copyCallback: HotkeyCallback | null = null;
 let clearCallback: HotkeyCallback | null = null;
 
-function normalizeAccelerator(key: string): string {
+export function normalizeAccelerator(key: string): string {
   return key
     .split('+')
     .map((part) => part.trim())
