@@ -100,7 +100,6 @@ src/
 
 - [仕様書](plan/spec.md)
 - [Windows環境セットアップ・検証ガイド](docs/windows-setup-guide.md)
-- [開発ワークフロー](CONTRIBUTING.md)
 
 ## ライセンス
 
