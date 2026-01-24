@@ -1,8 +1,9 @@
 import { app, ipcMain, clipboard, BrowserWindow } from 'electron';
 import { createMainWindow, showMainWindow, hideMainWindow, getMainWindow, destroyMainWindow, createSettingsWindow, closeSettingsWindow } from './window';
 import { createTray, destroyTray } from './tray';
-import { registerToggleHotkey, registerCopyHotkey, unregisterAllHotkeys, updateHotkeys } from './hotkey';
+import { registerToggleHotkey, registerCopyHotkey, registerClearHotkey, unregisterAllHotkeys, updateHotkeys } from './hotkey';
 import { store } from './store';
+import { createApplicationMenu } from './menu';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -16,12 +17,19 @@ if (!gotTheLock) {
   app.whenReady().then(() => {
     createMainWindow();
     createTray();
+    createApplicationMenu();
 
     registerToggleHotkey();
     registerCopyHotkey(() => {
       const mainWindow = getMainWindow();
       if (mainWindow) {
         mainWindow.webContents.send('copy-requested');
+      }
+    });
+    registerClearHotkey(() => {
+      const mainWindow = getMainWindow();
+      if (mainWindow) {
+        mainWindow.webContents.send('clear-requested');
       }
     });
 
@@ -76,20 +84,29 @@ function setupIpcHandlers(): void {
     return store.getSettings();
   });
 
-  ipcMain.handle('save-settings', (_event, settings: { toggle: string; copy: string }) => {
+  ipcMain.handle('save-settings', (_event, settings: { toggle: string; copy: string; clear: string }) => {
     store.setSettings({
       hotkeys: {
         toggle: settings.toggle,
         copy: settings.copy,
+        clear: settings.clear,
       },
     });
 
-    const result = updateHotkeys(() => {
-      const mainWindow = getMainWindow();
-      if (mainWindow) {
-        mainWindow.webContents.send('copy-requested');
+    const result = updateHotkeys(
+      () => {
+        const mainWindow = getMainWindow();
+        if (mainWindow) {
+          mainWindow.webContents.send('copy-requested');
+        }
+      },
+      () => {
+        const mainWindow = getMainWindow();
+        if (mainWindow) {
+          mainWindow.webContents.send('clear-requested');
+        }
       }
-    });
+    );
 
     closeSettingsWindow();
     return result;

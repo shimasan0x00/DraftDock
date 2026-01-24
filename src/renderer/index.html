@@ -39,9 +39,9 @@
       border: 1px solid #3c3c3c;
       border-radius: 4px;
       padding: 12px;
-      font-family: Consolas, 'Courier New', Menlo, Monaco, monospace;
-      font-size: 14px;
-      line-height: 1.5;
+      font-family: 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Source Code Pro', Consolas, 'Courier New', Menlo, Monaco, monospace;
+      font-size: 16px;
+      line-height: 1.6;
       background-color: #252526;
       color: #d4d4d4;
       outline: none;
@@ -83,6 +83,19 @@
     #clear-btn:active {
       background-color: #5c5c5c;
     }
+
+    #copy-btn {
+      background-color: #3c3c3c;
+      color: #d4d4d4;
+    }
+
+    #copy-btn:hover {
+      background-color: #4c4c4c;
+    }
+
+    #copy-btn:active {
+      background-color: #5c5c5c;
+    }
   </style>
 </head>
 <body>
@@ -96,6 +109,7 @@
     </div>
     <div class="button-container">
       <button id="clear-btn" type="button">クリア</button>
+      <button id="copy-btn" type="button">コピー</button>
     </div>
   </div>
   <script src="index.js"></script>

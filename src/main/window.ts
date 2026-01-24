@@ -5,12 +5,12 @@ import { store, Settings } from './store';
 let mainWindow: BrowserWindow | null = null;
 let settingsWindow: BrowserWindow | null = null;
 
-const MIN_WIDTH = 300;
-const MIN_HEIGHT = 200;
-const DEFAULT_WIDTH = 400;
-const DEFAULT_HEIGHT = 300;
+const MIN_WIDTH = 350;
+const MIN_HEIGHT = 250;
+const DEFAULT_WIDTH = 500;
+const DEFAULT_HEIGHT = 400;
 const SETTINGS_WIDTH = 350;
-const SETTINGS_HEIGHT = 250;
+const SETTINGS_HEIGHT = 300;
 
 function isPositionOnScreen(x: number, y: number): boolean {
   const displays = screen.getAllDisplays();

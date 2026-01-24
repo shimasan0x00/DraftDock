@@ -1,19 +1,23 @@
 (function() {
   let toggleInput: HTMLInputElement;
   let copyInput: HTMLInputElement;
+  let clearInput: HTMLInputElement;
   let saveBtn: HTMLButtonElement;
   let cancelBtn: HTMLButtonElement;
 
   let pendingToggleKey = '';
   let pendingCopyKey = '';
+  let pendingClearKey = '';
 
   async function loadSettings(): Promise<void> {
     try {
       const settings = await window.draftdock.getSettings();
       toggleInput.value = settings.hotkeys.toggle;
       copyInput.value = settings.hotkeys.copy;
+      clearInput.value = settings.hotkeys.clear;
       pendingToggleKey = settings.hotkeys.toggle;
       pendingCopyKey = settings.hotkeys.copy;
+      pendingClearKey = settings.hotkeys.clear;
     } catch (error) {
       console.error('Failed to load settings:', error);
     }
@@ -64,10 +68,11 @@
 
     toggleInput = document.getElementById('toggle-hotkey') as HTMLInputElement;
     copyInput = document.getElementById('copy-hotkey') as HTMLInputElement;
+    clearInput = document.getElementById('clear-hotkey') as HTMLInputElement;
     saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
     cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement;
 
-    if (!toggleInput || !copyInput || !saveBtn || !cancelBtn) {
+    if (!toggleInput || !copyInput || !clearInput || !saveBtn || !cancelBtn) {
       console.error('DraftDock Settings: Required DOM elements not found');
       return;
     }
@@ -93,12 +98,20 @@
       });
     });
 
+    clearInput.addEventListener('keydown', (event) => {
+      handleHotkeyInput(event, clearInput, (key) => {
+        pendingClearKey = key;
+        console.log('DraftDock Settings: Clear key set to', key);
+      });
+    });
+
     saveBtn.addEventListener('click', async () => {
-      console.log('DraftDock Settings: Save button clicked', { toggle: pendingToggleKey, copy: pendingCopyKey });
+      console.log('DraftDock Settings: Save button clicked', { toggle: pendingToggleKey, copy: pendingCopyKey, clear: pendingClearKey });
       try {
         const result = await window.draftdock.saveSettings({
           toggle: pendingToggleKey,
           copy: pendingCopyKey,
+          clear: pendingClearKey,
         });
         console.log('DraftDock Settings: Save result', result);
       } catch (error) {
