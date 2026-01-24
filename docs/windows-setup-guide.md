@@ -370,6 +370,89 @@ npm start
 npm run dist
 ```
 
+### 7.4 テスト実行
+
+#### Playwrightブラウザのインストール（初回のみ）
+
+```powershell
+npx playwright install
+```
+
+#### 単体テスト（Vitest）
+
+```powershell
+# 単体テスト実行
+npm run test:unit
+
+# ウォッチモード（ファイル変更時に自動再実行）
+npm run test:unit:watch
+```
+
+#### E2Eテスト（Playwright）
+
+```powershell
+# E2Eテスト実行（ヘッドレス）
+npm run test:e2e
+
+# E2Eテスト実行（ブラウザ表示）
+npm run test:e2e:headed
+```
+
+#### 全テスト実行
+
+```powershell
+npm run test
+```
+
+### 7.5 テスト構成
+
+#### 単体テスト（28件）
+
+| ファイル | 内容 |
+|----------|------|
+| `src/main/__tests__/hotkey.spec.ts` | ホットキー文字列正規化 |
+| `src/main/__tests__/constants.spec.ts` | ウィンドウサイズ定数 |
+| `src/main/__tests__/store.spec.ts` | デフォルト設定値 |
+
+#### E2Eテスト（18件 + 2スキップ）
+
+| ファイル | 内容 |
+|----------|------|
+| `e2e/main-window.spec.ts` | ウィンドウサイズ・属性 |
+| `e2e/clipboard.spec.ts` | コピー・クリア操作 |
+| `e2e/keyboard.spec.ts` | Escape・Tab操作 |
+| `e2e/settings.spec.ts` | 設定画面 |
+| `e2e/persistence.spec.ts` | 永続化 |
+
+### 7.6 npm scripts一覧
+
+| コマンド | 説明 |
+|----------|------|
+| `npm run build` | TypeScriptコンパイル + アセットコピー |
+| `npm run start` | ビルド + アプリ起動 |
+| `npm run dev` | ビルド + アプリ起動（開発用） |
+| `npm run test` | 全テスト実行（単体 + E2E） |
+| `npm run test:unit` | 単体テスト実行 |
+| `npm run test:unit:watch` | 単体テスト（ウォッチモード） |
+| `npm run test:e2e` | E2Eテスト実行 |
+| `npm run test:e2e:headed` | E2Eテスト（ブラウザ表示） |
+| `npm run pack` | インストーラなしでパッケージング |
+| `npm run dist` | インストーラ付きでビルド |
+
+### 7.7 Git Hooks
+
+pre-pushフックでテストが自動実行されます：
+
+1. 単体テスト
+2. ビルド
+3. E2Eテスト
+
+緊急時は `--no-verify` でスキップ可能：
+
+```powershell
+git push --no-verify
+```
+
 ---
 
 ## 8. 参考リンク

@@ -10,6 +10,9 @@ DraftDockは、AI/チャットツールの誤送信を防ぐための常駐型�
 
 ## セットアップ
 
+**Windows環境セットアップ**: [`docs/windows-setup-guide.md`](docs/windows-setup-guide.md)
+
+Git Hooks設定（WSL/Linux）:
 ```bash
 chmod +x ./scripts/setup-githooks.sh
 ./scripts/setup-githooks.sh
