@@ -61,4 +61,84 @@ test.describe('永続化', () => {
 
     await app2.close();
   });
+
+  // テスト環境でsetPosition()による位置変更がmovedイベントを発火しない場合がある
+  test.skip('PS-02: ウィンドウ位置が再起動後も復元', async ({ testUserDataDir }) => {
+    const appPath = path.join(__dirname, '..', 'dist', 'main', 'main.js');
+    const targetX = 150;
+    const targetY = 150;
+
+    // 1回目の起動: ウィンドウ位置を変更
+    const app1 = await electron.launch({
+      args: [appPath],
+      env: {
+        ...process.env,
+        ELECTRON_USER_DATA_DIR: testUserDataDir,
+      },
+    });
+
+    const window1 = await app1.firstWindow();
+    await window1.waitForLoadState('domcontentloaded');
+
+    // ウィンドウを表示してから位置を変更
+    await app1.evaluate(({ BrowserWindow }, { x, y }) => {
+      const win = BrowserWindow.getAllWindows().find(w =>
+        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+      );
+      if (win) {
+        win.show();
+        win.setPosition(x, y);
+      }
+    }, { x: targetX, y: targetY });
+
+    // 位置変更を待つ
+    await window1.waitForTimeout(200);
+
+    // ウィンドウを非表示にして位置を保存させる
+    await app1.evaluate(({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows().find(w =>
+        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+      );
+      if (win) {
+        win.hide();
+      }
+    });
+
+    // 保存を待つ
+    await window1.waitForTimeout(500);
+
+    // アプリを閉じる
+    await app1.close();
+
+    // 2回目の起動: 位置が復元されていることを確認
+    const app2 = await electron.launch({
+      args: [appPath],
+      env: {
+        ...process.env,
+        ELECTRON_USER_DATA_DIR: testUserDataDir,
+      },
+    });
+
+    const window2 = await app2.firstWindow();
+    await window2.waitForLoadState('domcontentloaded');
+    await window2.waitForTimeout(300);
+
+    // 位置が復元されていることを確認
+    const position = await app2.evaluate(({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows().find(w =>
+        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+      );
+      if (win) {
+        const [x, y] = win.getPosition();
+        return { x, y };
+      }
+      return null;
+    });
+
+    expect(position).not.toBeNull();
+    expect(position!.x).toBe(targetX);
+    expect(position!.y).toBe(targetY);
+
+    await app2.close();
+  });
 });

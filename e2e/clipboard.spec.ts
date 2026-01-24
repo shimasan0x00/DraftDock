@@ -60,4 +60,80 @@ test.describe('クリップボード・ボタン操作', () => {
     // テキストエリアが空になっていることを確認
     await expect(textarea).toHaveValue('');
   });
+
+  test('CB-04: コピー後にウィンドウが非表示になる', async ({ electronApp, mainWindow }) => {
+    const testText = 'コピー後非表示テスト';
+
+    // ウィンドウを表示させる
+    await electronApp.evaluate(({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows().find(w =>
+        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+      );
+      if (win) {
+        win.show();
+      }
+    });
+    await mainWindow.waitForTimeout(100);
+
+    // テキストエリアにテキストを入力
+    const textarea = mainWindow.locator('#draft-textarea');
+    await textarea.fill(testText);
+
+    // ウィンドウが表示されていることを確認
+    const isVisibleBefore = await electronApp.evaluate(({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows().find(w =>
+        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+      );
+      return win?.isVisible() ?? false;
+    });
+    expect(isVisibleBefore).toBe(true);
+
+    // コピーボタンをクリック
+    const copyBtn = mainWindow.locator('#copy-btn');
+    await copyBtn.click();
+
+    // 少し待ってからウィンドウが非表示になっていることを確認
+    await mainWindow.waitForTimeout(200);
+
+    const isVisibleAfter = await electronApp.evaluate(({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows().find(w =>
+        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+      );
+      return win?.isVisible() ?? false;
+    });
+    expect(isVisibleAfter).toBe(false);
+  });
+
+  test('CB-05: 空テキスト時はコピーボタンでウィンドウ非表示にならない', async ({ electronApp, mainWindow }) => {
+    // ウィンドウを表示させる
+    await electronApp.evaluate(({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows().find(w =>
+        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+      );
+      if (win) {
+        win.show();
+      }
+    });
+    await mainWindow.waitForTimeout(100);
+
+    // テキストエリアを空にする
+    const textarea = mainWindow.locator('#draft-textarea');
+    await textarea.fill('');
+
+    // コピーボタンをクリック
+    const copyBtn = mainWindow.locator('#copy-btn');
+    await copyBtn.click();
+
+    // 少し待つ
+    await mainWindow.waitForTimeout(200);
+
+    // ウィンドウが表示されたままであることを確認
+    const isVisible = await electronApp.evaluate(({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows().find(w =>
+        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+      );
+      return win?.isVisible() ?? false;
+    });
+    expect(isVisible).toBe(true);
+  });
 });

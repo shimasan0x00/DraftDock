@@ -72,4 +72,40 @@ describe('normalizeAccelerator', () => {
   it('should handle spaces around plus signs', () => {
     expect(normalizeAccelerator('Ctrl + Shift + D')).toBe('CommandOrControl+Shift+D');
   });
+
+  // エッジケース
+  describe('edge cases', () => {
+    it('should handle empty string', () => {
+      expect(normalizeAccelerator('')).toBe('');
+    });
+
+    it('should handle single key without modifier', () => {
+      expect(normalizeAccelerator('A')).toBe('A');
+      expect(normalizeAccelerator('a')).toBe('A');
+      expect(normalizeAccelerator('Z')).toBe('Z');
+    });
+
+    it('should handle function keys', () => {
+      expect(normalizeAccelerator('F1')).toBe('F1');
+      expect(normalizeAccelerator('f12')).toBe('F12');
+      expect(normalizeAccelerator('Ctrl+F5')).toBe('CommandOrControl+F5');
+    });
+
+    it('should handle number keys', () => {
+      expect(normalizeAccelerator('Ctrl+1')).toBe('CommandOrControl+1');
+      expect(normalizeAccelerator('Alt+0')).toBe('Alt+0');
+    });
+
+    it('should handle special keys', () => {
+      expect(normalizeAccelerator('Ctrl+Delete')).toBe('CommandOrControl+Delete');
+      expect(normalizeAccelerator('Ctrl+Backspace')).toBe('CommandOrControl+Backspace');
+      expect(normalizeAccelerator('Ctrl+Home')).toBe('CommandOrControl+Home');
+      expect(normalizeAccelerator('Ctrl+End')).toBe('CommandOrControl+End');
+    });
+
+    it('should handle multiple modifiers', () => {
+      expect(normalizeAccelerator('Ctrl+Alt+Delete')).toBe('CommandOrControl+Alt+Delete');
+      expect(normalizeAccelerator('Ctrl+Shift+Alt+A')).toBe('CommandOrControl+Shift+Alt+A');
+    });
+  });
 });
