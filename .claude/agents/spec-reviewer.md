@@ -105,6 +105,44 @@ Step 6: レポート出力
 
 ---
 
+## 定量的検証項目（具体値チェック）
+
+以下の項目は具体的な値がコードに存在することを確認する。
+
+### ウィンドウサイズ（src/main/window.ts）
+
+| ID | 項目 | 期待値 | 検証パターン |
+|----|------|--------|-------------|
+| U1 | 初期幅 | 500 | `DEFAULT_WIDTH = 500` |
+| U1 | 初期高 | 400 | `DEFAULT_HEIGHT = 400` |
+| U2 | 最小幅 | 350 | `MIN_WIDTH = 350` |
+| U2 | 最小高 | 250 | `MIN_HEIGHT = 250` |
+| U7 | 設定画面幅 | 350 | `SETTINGS_WIDTH = 350` |
+| U7 | 設定画面高 | 300 | `SETTINGS_HEIGHT = 300` |
+
+### フォント設定（src/renderer/index.html）
+
+| ID | 項目 | 期待値 | 検証パターン |
+|----|------|--------|-------------|
+| U4 | フォントサイズ | 16px | `font-size: 16px` |
+| U4 | フォント | Cascadia Code | `Cascadia Code` を含む |
+
+### デフォルトホットキー（src/main/store.ts）
+
+| ID | 項目 | 期待値 | 検証パターン |
+|----|------|--------|-------------|
+| D4 | 起動キー | Ctrl+Shift+D | `toggle: 'Ctrl+Shift+D'` |
+| D5 | コピーキー | Ctrl+Enter | `copy: 'Ctrl+Enter'` |
+| D7 | クリアキー | Ctrl+Shift+L | `clear: 'Ctrl+Shift+L'` |
+
+### デバウンス（src/renderer/index.ts）
+
+| ID | 項目 | 期待値 | 検証パターン |
+|----|------|--------|-------------|
+| D6 | デバウンス間隔 | 500ms | `DEBOUNCE_MS = 500`
+
+---
+
 ## 出力フォーマット（固定）
 
 ```yaml
