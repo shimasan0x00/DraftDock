@@ -44,7 +44,7 @@ model: opus
 
 | ID | 項目 | 検証方法 |
 |----|------|---------|
-| U1 | 初期サイズ 450x400 | BrowserWindow設定確認 |
+| U1 | 初期サイズ 350x400 | BrowserWindow設定確認 |
 | U2 | 最小サイズ 300x250 | minWidth/minHeight確認 |
 | U3 | 常に最前面 | alwaysOnTop設定確認 |
 | U4 | 等幅フォント 16px (Cascadia Code等) | CSS確認 |
@@ -114,7 +114,7 @@ Step 6: レポート出力
 
 | ID | 項目 | 期待値 | 検証パターン |
 |----|------|--------|-------------|
-| U1 | 初期幅 | 450 | `DEFAULT_WIDTH = 450` |
+| U1 | 初期幅 | 350 | `DEFAULT_WIDTH = 350` |
 | U1 | 初期高 | 400 | `DEFAULT_HEIGHT = 400` |
 | U2 | 最小幅 | 300 | `MIN_WIDTH = 300` |
 | U2 | 最小高 | 250 | `MIN_HEIGHT = 250` |
