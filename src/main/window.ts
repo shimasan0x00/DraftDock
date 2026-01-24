@@ -10,7 +10,7 @@ const MIN_HEIGHT = 300;
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 450;
 const SETTINGS_WIDTH = 450;
-const SETTINGS_HEIGHT = 420;
+const SETTINGS_HEIGHT = 450;
 
 function isPositionOnScreen(x: number, y: number): boolean {
   const displays = screen.getAllDisplays();
@@ -59,6 +59,7 @@ export function createMainWindow(): BrowserWindow {
     show: false,
     alwaysOnTop: true,
     skipTaskbar: true,
+    icon: path.join(__dirname, '..', 'assets', 'tray-icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       contextIsolation: true,
@@ -162,6 +163,7 @@ export function createSettingsWindow(): BrowserWindow {
     maximizable: false,
     alwaysOnTop: true,
     autoHideMenuBar: true,
+    icon: path.join(__dirname, '..', 'assets', 'tray-icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       contextIsolation: true,

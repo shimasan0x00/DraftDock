@@ -20,7 +20,7 @@ test.describe('設定画面', () => {
     expect(hasSettingsWindow).toBe(true);
   });
 
-  test('SW-02: 設定画面サイズ450x420', async ({ electronApp, mainWindow }) => {
+  test('SW-02: 設定画面サイズ450x450', async ({ electronApp, mainWindow }) => {
     // preload API経由で設定ウィンドウを開く
     await mainWindow.evaluate(() => {
       return (window as any).draftdock.openSettings();
@@ -42,7 +42,7 @@ test.describe('設定画面', () => {
 
     expect(windowSize).not.toBeNull();
     expect(windowSize!.width).toBe(450);
-    expect(windowSize!.height).toBe(420);
+    expect(windowSize!.height).toBe(450);
   });
 
   test('SW-03: 設定画面にデフォルト値が表示される', async ({ electronApp, mainWindow }) => {

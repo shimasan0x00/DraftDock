@@ -12,7 +12,7 @@ describe('Window Constants', () => {
     const DEFAULT_WIDTH = 800;
     const DEFAULT_HEIGHT = 450;
     const SETTINGS_WIDTH = 450;
-    const SETTINGS_HEIGHT = 420;
+    const SETTINGS_HEIGHT = 450;
 
     it('should have valid minimum window dimensions', () => {
       expect(MIN_WIDTH).toBeGreaterThan(0);
@@ -28,7 +28,7 @@ describe('Window Constants', () => {
 
     it('should have valid settings window dimensions', () => {
       expect(SETTINGS_WIDTH).toBe(450);
-      expect(SETTINGS_HEIGHT).toBe(420);
+      expect(SETTINGS_HEIGHT).toBe(450);
     });
 
     it('should ensure minimum is smaller than default', () => {
