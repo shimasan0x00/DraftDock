@@ -7,12 +7,12 @@ describe('Window Constants', () => {
   // CN-01: ウィンドウサイズ定数の検証
   describe('Window size constants', () => {
     // これらの値はwindow.tsで定義されている定数と一致する必要がある
-    const MIN_WIDTH = 350;
+    const MIN_WIDTH = 300;
     const MIN_HEIGHT = 250;
-    const DEFAULT_WIDTH = 500;
+    const DEFAULT_WIDTH = 450;
     const DEFAULT_HEIGHT = 400;
-    const SETTINGS_WIDTH = 350;
-    const SETTINGS_HEIGHT = 300;
+    const SETTINGS_WIDTH = 400;
+    const SETTINGS_HEIGHT = 350;
 
     it('should have valid minimum window dimensions', () => {
       expect(MIN_WIDTH).toBeGreaterThan(0);
@@ -22,13 +22,13 @@ describe('Window Constants', () => {
     });
 
     it('should have valid default window dimensions', () => {
-      expect(DEFAULT_WIDTH).toBe(500);
+      expect(DEFAULT_WIDTH).toBe(450);
       expect(DEFAULT_HEIGHT).toBe(400);
     });
 
     it('should have valid settings window dimensions', () => {
-      expect(SETTINGS_WIDTH).toBe(350);
-      expect(SETTINGS_HEIGHT).toBe(300);
+      expect(SETTINGS_WIDTH).toBe(400);
+      expect(SETTINGS_HEIGHT).toBe(350);
     });
 
     it('should ensure minimum is smaller than default', () => {

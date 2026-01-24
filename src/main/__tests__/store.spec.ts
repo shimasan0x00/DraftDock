@@ -15,7 +15,7 @@ describe('Store Default Settings', () => {
     window: {
       x: null,
       y: null,
-      width: 500,
+      width: 450,
       height: 400,
     },
   };
@@ -50,7 +50,7 @@ describe('Store Default Settings', () => {
     });
 
     it('should have correct default window size', () => {
-      expect(DEFAULT_SETTINGS.window.width).toBe(500);
+      expect(DEFAULT_SETTINGS.window.width).toBe(450);
       expect(DEFAULT_SETTINGS.window.height).toBe(400);
     });
 

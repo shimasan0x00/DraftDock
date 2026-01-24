@@ -10,7 +10,7 @@ test.describe('メインウィンドウ', () => {
     expect(url).toContain('index.html');
   });
 
-  test('MW-02: ウィンドウサイズが500x400', async ({ electronApp, mainWindow }) => {
+  test('MW-02: ウィンドウサイズが450x400', async ({ electronApp, mainWindow }) => {
     // メインウィンドウのサイズを取得
     const windowSize = await electronApp.evaluate(({ BrowserWindow }) => {
       const win = BrowserWindow.getAllWindows().find(w => !w.isDestroyed() && w.webContents.getURL().includes('index.html'));
@@ -22,11 +22,11 @@ test.describe('メインウィンドウ', () => {
     });
 
     expect(windowSize).not.toBeNull();
-    expect(windowSize!.width).toBe(500);
+    expect(windowSize!.width).toBe(450);
     expect(windowSize!.height).toBe(400);
   });
 
-  test('MW-03: 最小サイズが350x250', async ({ electronApp, mainWindow }) => {
+  test('MW-03: 最小サイズが300x250', async ({ electronApp, mainWindow }) => {
     // mainWindowがロードされた状態で最小サイズを取得
     const minSize = await electronApp.evaluate(({ BrowserWindow }) => {
       const windows = BrowserWindow.getAllWindows();
@@ -39,7 +39,7 @@ test.describe('メインウィンドウ', () => {
     });
 
     expect(minSize).not.toBeNull();
-    expect(minSize![0]).toBe(350); // minWidth
+    expect(minSize![0]).toBe(300); // minWidth
     expect(minSize![1]).toBe(250); // minHeight
   });
 

@@ -21,11 +21,10 @@ export const test = base.extend<ElectronFixtures>({
 
   electronApp: async ({ testUserDataDir }, use) => {
     const app = await electron.launch({
-      args: [path.join(__dirname, '..', '..', 'dist', 'main', 'main.js')],
-      env: {
-        ...process.env,
-        ELECTRON_USER_DATA_DIR: testUserDataDir,
-      },
+      args: [
+        path.join(__dirname, '..', '..', 'dist', 'main', 'main.js'),
+        `--user-data-dir=${testUserDataDir}`,
+      ],
     });
     await use(app);
     await app.close();
