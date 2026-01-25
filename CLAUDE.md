@@ -7,6 +7,7 @@ DraftDockは、AI/チャットツールの誤送信を防ぐための常駐型�
 - **技術スタック**: TypeScript, Electron, HTML/CSS
 - **対応OS**: Windows（MVP）、macOS（将来）
 - **仕様書**: `plan/spec.md`
+- **配布**: GitHub Releases（自動ビルド）
 
 ## セットアップ
 
@@ -108,19 +109,27 @@ PRの作成は `/pr` コマンドで明示的に実行する。自動でPRを作
 ```
 src/
 ├── main/
-│   ├── main.ts      # エントリポイント
-│   ├── tray.ts      # トレイ制御
-│   ├── hotkey.ts    # グローバルホットキー
-│   ├── window.ts    # ウィンドウ管理
-│   └── store.ts     # 永続化
+│   ├── main.ts       # エントリポイント
+│   ├── tray.ts       # トレイ制御
+│   ├── hotkey.ts     # グローバルホットキー
+│   ├── window.ts     # ウィンドウ管理
+│   ├── store.ts      # 永続化
+│   ├── menu.ts       # アプリケーションメニュー
+│   └── __tests__/    # 単体テスト（Vitest）
 ├── preload/
-│   └── preload.ts   # contextBridge API
+│   └── preload.ts    # contextBridge API
 └── renderer/
-    ├── index.html   # メインウィンドウ
+    ├── index.html    # メインウィンドウ
     ├── index.ts
     ├── settings.html # 設定画面
     ├── settings.ts
-    └── types.d.ts   # 型定義
+    └── types.d.ts    # 型定義
+e2e/                  # E2Eテスト（Playwright）
+assets/
+├── fonts/            # Bizin Gothic フォント
+├── draft_pad.ico     # Windowsアイコン
+├── draft_pad_16.png  # トレイアイコン
+└── draft_pad_256.png # ウィンドウアイコン
 ```
 
 ## デフォルト設定値
@@ -132,5 +141,34 @@ src/
 | クリアキー | Ctrl+Shift+L |
 | ウィンドウサイズ | 800 x 450 px |
 | 最小サイズ | 400 x 300 px |
-| 設定画面サイズ | 450 x 420 px |
+| 設定画面サイズ | 450 x 450 px |
 | デバウンス保存 | 500ms |
+| フォント | Bizin Gothic（日本語対応等幅） |
+
+## テスト
+
+### コマンド
+
+| コマンド | 説明 |
+|---------|------|
+| `npm test` | 全テスト実行（単体 + E2E） |
+| `npm run test:unit` | Vitest単体テスト |
+| `npm run test:unit:watch` | Vitest ウォッチモード |
+| `npm run test:e2e` | Playwright E2Eテスト |
+
+### テスト構成
+
+- **単体テスト**: `src/main/__tests__/*.spec.ts`
+- **E2Eテスト**: `e2e/*.spec.ts`
+
+## CI/CD
+
+### GitHub Actions
+
+mainブランチへのpush時に自動でリリースが作成される。
+
+1. バージョン判定（既存タグがあればパッチバンプ）
+2. ビルド & パッケージング
+3. タグ作成 & GitHub Release公開
+
+詳細: `.github/workflows/release.yml`

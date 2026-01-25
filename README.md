@@ -2,10 +2,15 @@
 
 AI/チャットツールの誤送信を防ぐための常駐型下書きアプリケーション。
 
+## ダウンロード
+
+[Releases](https://github.com/shimasan0x00/DraftDock/releases) からWindows用インストーラー（.exe）をダウンロードできます。
+
 ## 概要
 
 - **ホットキーで即呼び出し** - どんなアプリを使っていても `Ctrl+Shift+D` で下書きウィンドウを表示
 - **ワンアクションでコピー** - `Ctrl+Enter` でクリップボードにコピーしてウィンドウを閉じる
+- **ワンアクションでクリア** - `Ctrl+Shift+L` で下書きをクリア
 - **下書きが消えない** - ウィンドウを閉じてもアプリを再起動しても下書きが復元される
 
 ## 機能
@@ -23,7 +28,10 @@ AI/チャットツールの誤送信を防ぐための常駐型下書きアプ�
 |------|------|
 | 表示/非表示 | `Ctrl+Shift+D` |
 | コピー&閉じる | `Ctrl+Enter` |
+| クリア | `Ctrl+Shift+L` |
 | 閉じる | `Escape` |
+
+すべてのホットキーは設定画面（トレイアイコン → 設定）からカスタマイズ可能です。
 
 ## インストール
 
@@ -60,6 +68,9 @@ chmod +x ./scripts/setup-githooks.sh
 |---------|------|
 | `npm run build` | TypeScriptをコンパイル |
 | `npm start` | ビルド & アプリ起動 |
+| `npm test` | 全テスト実行（単体 + E2E） |
+| `npm run test:unit` | 単体テスト（Vitest） |
+| `npm run test:e2e` | E2Eテスト（Playwright） |
 | `npm run pack` | パッケージング（ディレクトリ） |
 | `npm run dist` | インストーラー作成 |
 
@@ -72,7 +83,9 @@ src/
 │   ├── tray.ts     # トレイ制御
 │   ├── hotkey.ts   # グローバルホットキー
 │   ├── window.ts   # ウィンドウ管理
-│   └── store.ts    # 永続化
+│   ├── store.ts    # 永続化
+│   ├── menu.ts     # アプリケーションメニュー
+│   └── __tests__/  # 単体テスト
 ├── preload/
 │   └── preload.ts  # contextBridge API
 └── renderer/
@@ -80,6 +93,10 @@ src/
     ├── index.ts
     ├── settings.html # 設定画面
     └── settings.ts
+e2e/                # E2Eテスト（Playwright）
+assets/
+├── fonts/          # Bizin Gothic（日本語対応等幅フォント）
+└── *.ico, *.png    # アイコン
 ```
 
 ### データ保存場所

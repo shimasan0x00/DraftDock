@@ -37,6 +37,7 @@
 ### 3.2 配布
 - ストア配布は想定しない
 - **GitHub Releases** で配布（インストーラあり）
+- mainブランチへのマージ時に自動ビルド＆リリース
 
 ---
 
@@ -209,12 +210,13 @@ DraftDock/
 ### 10.2 テキストエリア
 | 項目 | 仕様 |
 |------|------|
-| フォント | Cascadia Code, JetBrains Mono, Fira Code, Source Code Pro, Consolas, Courier New, Menlo, Monaco, monospace |
+| フォント | Bizin Gothic（バンドル）, HackGen, UDEV Gothic, Cascadia Code, JetBrains Mono, Fira Code, Consolas, monospace |
 | フォントサイズ | 16px |
 | 行高 | 1.6 |
 | 行番号 | なし |
 | 折り返し | あり（横スクロールなし） |
 | プレースホルダー | 「下書きを入力...」 |
+| タブサイズ | 4文字 |
 
 ### 10.3 キーボード操作
 | キー | 挙動 |
@@ -241,7 +243,7 @@ DraftDock/
 | 項目 | 仕様 |
 |------|------|
 | 表示方法 | 別ウィンドウ |
-| サイズ | 450 x 420 px（固定） |
+| サイズ | 450 x 450 px（固定） |
 | リサイズ | 不可 |
 | メニューバー | なし |
 
@@ -321,7 +323,9 @@ src/
 │   ├── tray.ts     # トレイ制御
 │   ├── hotkey.ts   # グローバルホットキー
 │   ├── window.ts   # ウィンドウ管理
-│   └── store.ts    # 永続化（electron-store等）
+│   ├── store.ts    # 永続化（electron-store等）
+│   ├── menu.ts     # アプリケーションメニュー
+│   └── __tests__/  # 単体テスト
 ├── preload/
 │   └── preload.ts  # contextBridge API
 └── renderer/
@@ -329,4 +333,22 @@ src/
     ├── index.ts
     ├── settings.html # 設定画面
     └── settings.ts
+e2e/                # E2Eテスト
+assets/
+├── fonts/          # バンドルフォント（Bizin Gothic）
+└── *.png, *.ico    # アイコン
 ```
+
+### 12.4 テスト
+
+| 種類 | ツール | 対象 |
+|------|--------|------|
+| 単体テスト | Vitest | ホットキー正規化、定数、ストア |
+| E2Eテスト | Playwright | ウィンドウ操作、クリップボード、永続化 |
+
+### 12.5 CI/CD
+
+| イベント | アクション |
+|----------|-----------|
+| mainへのpush | 自動ビルド → GitHub Release作成 |
+| バージョン重複時 | パッチバージョン自動インクリメント |
