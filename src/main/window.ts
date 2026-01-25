@@ -59,7 +59,7 @@ export function createMainWindow(): BrowserWindow {
     show: false,
     alwaysOnTop: true,
     skipTaskbar: true,
-    icon: path.join(__dirname, '..', 'assets', 'tray-icon.png'),
+    icon: path.join(__dirname, '..', 'assets', 'draft_pad_256.png'),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       contextIsolation: true,
@@ -163,7 +163,7 @@ export function createSettingsWindow(): BrowserWindow {
     maximizable: false,
     alwaysOnTop: true,
     autoHideMenuBar: true,
-    icon: path.join(__dirname, '..', 'assets', 'tray-icon.png'),
+    icon: path.join(__dirname, '..', 'assets', 'draft_pad_256.png'),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       contextIsolation: true,
