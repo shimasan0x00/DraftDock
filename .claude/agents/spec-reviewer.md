@@ -50,7 +50,7 @@ model: opus
 | U4 | 等幅フォント 16px (Cascadia Code等) | CSS確認 |
 | U5 | Escape で非表示 | キーイベント処理確認 |
 | U6 | Tab でタブ挿入 | キーイベント処理確認 |
-| U7 | 設定画面 450x420 固定 | 設定ウィンドウ設定確認 |
+| U7 | 設定画面 450x450 固定 | 設定ウィンドウ設定確認 |
 | U8 | トレイメニュー（開く/設定/終了） | メニュー項目確認 |
 | U9 | メニューバー（ファイル/編集） | Menu API使用確認 |
 | U10 | ボタンにショートカット表記 | ボタンラベル動的更新確認 |
@@ -119,7 +119,7 @@ Step 6: レポート出力
 | U2 | 最小幅 | 400 | `MIN_WIDTH = 400` |
 | U2 | 最小高 | 300 | `MIN_HEIGHT = 300` |
 | U7 | 設定画面幅 | 450 | `SETTINGS_WIDTH = 450` |
-| U7 | 設定画面高 | 420 | `SETTINGS_HEIGHT = 420` |
+| U7 | 設定画面高 | 450 | `SETTINGS_HEIGHT = 450` |
 | U11 | 設定画面メニューなし | - | `setMenu(null)` |
 
 ### フォント設定（src/renderer/index.html）
@@ -127,7 +127,9 @@ Step 6: レポート出力
 | ID | 項目 | 期待値 | 検証パターン |
 |----|------|--------|-------------|
 | U4 | フォントサイズ | 16px | `font-size: 16px` |
-| U4 | フォント | Cascadia Code | `Cascadia Code` を含む |
+| U4 | フォント | Bizin Gothic | `Bizin Gothic` を含む（優先） |
+| U4 | フォールバック | Cascadia Code等 | `Cascadia Code` を含む |
+| U4 | タブサイズ | 4 | `tab-size: 4` |
 
 ### デフォルトホットキー（src/main/store.ts）
 

@@ -163,7 +163,6 @@ npm run build
 
 Copied: src/renderer/index.html -> dist/renderer/index.html
 Copied: src/renderer/settings.html -> dist/renderer/settings.html
-Copied: assets/tray-icon.png -> dist/assets/tray-icon.png
 Assets copied successfully!
 ```
 
@@ -327,7 +326,9 @@ DraftDock/
 │   │   ├── tray.ts     # トレイ制御
 │   │   ├── hotkey.ts   # ホットキー
 │   │   ├── window.ts   # ウィンドウ管理
-│   │   └── store.ts    # 永続化
+│   │   ├── store.ts    # 永続化
+│   │   ├── menu.ts     # アプリケーションメニュー
+│   │   └── __tests__/  # 単体テスト
 │   ├── preload/
 │   │   └── preload.ts  # contextBridge API
 │   └── renderer/
@@ -336,7 +337,11 @@ DraftDock/
 │       ├── settings.html # 設定画面
 │       └── settings.ts
 ├── assets/
-│   └── tray-icon.png   # トレイアイコン
+│   ├── fonts/          # Bizin Gothic（日本語対応等幅フォント）
+│   ├── draft_pad.ico   # Windowsアイコン
+│   ├── draft_pad_16.png  # トレイアイコン
+│   └── draft_pad_256.png # ウィンドウアイコン
+├── e2e/                # E2Eテスト（Playwright）
 ├── dist/               # ビルド出力（gitignore）
 ├── package.json
 └── tsconfig.json
