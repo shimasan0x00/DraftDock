@@ -6,7 +6,7 @@ let tray: Tray | null = null;
 
 function createTrayIcon(): NativeImage {
   // dist/main から dist/assets への相対パス
-  const iconPath = path.join(__dirname, '..', 'assets', 'tray-icon.png');
+  const iconPath = path.join(__dirname, '..', 'assets', 'draft_pad_16.png');
   try {
     const icon = nativeImage.createFromPath(iconPath);
     if (icon.isEmpty()) {
