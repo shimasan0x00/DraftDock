@@ -1,6 +1,7 @@
 (function() {
   let textarea: HTMLTextAreaElement;
   let clearBtn: HTMLButtonElement;
+  let copyBtn: HTMLButtonElement;
   let saveTimeout: ReturnType<typeof setTimeout> | null = null;
   const DEBOUNCE_MS = 500;
 
@@ -52,6 +53,16 @@
     }
   }
 
+  async function updateButtonLabels(): Promise<void> {
+    try {
+      const settings = await window.draftdock.getSettings();
+      clearBtn.textContent = `クリア (${settings.hotkeys.clear})`;
+      copyBtn.textContent = `コピー (${settings.hotkeys.copy})`;
+    } catch (error) {
+      console.error('Failed to update button labels:', error);
+    }
+  }
+
   function handleGlobalKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       event.preventDefault();
@@ -84,8 +95,9 @@
 
     textarea = document.getElementById('draft-textarea') as HTMLTextAreaElement;
     clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+    copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
 
-    if (!textarea || !clearBtn) {
+    if (!textarea || !clearBtn || !copyBtn) {
       console.error('DraftDock: Required DOM elements not found');
       return;
     }
@@ -100,11 +112,17 @@
     textarea.addEventListener('input', debouncedSave);
     textarea.addEventListener('keydown', handleTextareaKeydown);
     clearBtn.addEventListener('click', clearDraft);
+    copyBtn.addEventListener('click', copyAndHide);
 
     document.addEventListener('keydown', handleGlobalKeydown);
 
     window.draftdock.onWindowShown(() => {
       focusTextarea();
+      updateButtonLabels();
+    });
+
+    window.draftdock.onClearRequested(() => {
+      clearDraft();
     });
 
     window.draftdock.onCopyRequested(() => {
@@ -114,6 +132,7 @@
     loadDraft().then(() => {
       console.log('DraftDock: Draft loaded');
       focusTextarea();
+      updateButtonLabels();
     }).catch((error) => {
       console.error('DraftDock: Failed to load draft', error);
     });

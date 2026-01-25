@@ -26,30 +26,35 @@ model: opus
 | F6 | 下書き永続化 | `electron-store` または fs 使用確認 |
 | F7 | 設定変更の即時反映 | ホットキー再登録ロジック確認 |
 | F8 | 二重起動防止 | `app.requestSingleInstanceLock` 確認 |
+| F9 | クリアキーでテキストクリア | グローバルホットキー + IPC確認 |
 
 ### 2. データ仕様
 
 | ID | 項目 | 検証方法 |
 |----|------|---------|
 | D1 | 保存先: %APPDATA%/DraftDock/ | パス設定確認 |
-| D2 | settings.json スキーマ | hotkeys, window フィールド確認 |
+| D2 | settings.json スキーマ | hotkeys(toggle, copy, clear), window フィールド確認 |
 | D3 | draft.json スキーマ | content, updatedAt フィールド確認 |
-| D4 | デフォルト値: Ctrl+Shift+D | デフォルト設定確認 |
-| D5 | デフォルト値: Ctrl+Enter | デフォルト設定確認 |
+| D4 | デフォルト値: Ctrl+Shift+D (起動) | デフォルト設定確認 |
+| D5 | デフォルト値: Ctrl+Enter (コピー) | デフォルト設定確認 |
 | D6 | デバウンス保存 500ms | debounce 実装確認 |
+| D7 | デフォルト値: Ctrl+Shift+L (クリア) | デフォルト設定確認 |
 
 ### 3. UI仕様
 
 | ID | 項目 | 検証方法 |
 |----|------|---------|
-| U1 | 初期サイズ 400x300 | BrowserWindow設定確認 |
-| U2 | 最小サイズ 300x200 | minWidth/minHeight確認 |
+| U1 | 初期サイズ 800x450 | BrowserWindow設定確認 |
+| U2 | 最小サイズ 400x300 | minWidth/minHeight確認 |
 | U3 | 常に最前面 | alwaysOnTop設定確認 |
-| U4 | 等幅フォント 14px | CSS確認 |
+| U4 | 等幅フォント 16px (Cascadia Code等) | CSS確認 |
 | U5 | Escape で非表示 | キーイベント処理確認 |
 | U6 | Tab でタブ挿入 | キーイベント処理確認 |
-| U7 | 設定画面 350x250 固定 | 設定ウィンドウ設定確認 |
+| U7 | 設定画面 450x420 固定 | 設定ウィンドウ設定確認 |
 | U8 | トレイメニュー（開く/設定/終了） | メニュー項目確認 |
+| U9 | メニューバー（ファイル/編集） | Menu API使用確認 |
+| U10 | ボタンにショートカット表記 | ボタンラベル動的更新確認 |
+| U11 | 設定画面にメニューバーなし | setMenu(null)確認 |
 
 ### 4. 受け入れ条件（AC）
 
@@ -101,6 +106,45 @@ Step 6: レポート出力
 
 ---
 
+## 定量的検証項目（具体値チェック）
+
+以下の項目は具体的な値がコードに存在することを確認する。
+
+### ウィンドウサイズ（src/main/window.ts）
+
+| ID | 項目 | 期待値 | 検証パターン |
+|----|------|--------|-------------|
+| U1 | 初期幅 | 800 | `DEFAULT_WIDTH = 800` |
+| U1 | 初期高 | 450 | `DEFAULT_HEIGHT = 450` |
+| U2 | 最小幅 | 400 | `MIN_WIDTH = 400` |
+| U2 | 最小高 | 300 | `MIN_HEIGHT = 300` |
+| U7 | 設定画面幅 | 450 | `SETTINGS_WIDTH = 450` |
+| U7 | 設定画面高 | 420 | `SETTINGS_HEIGHT = 420` |
+| U11 | 設定画面メニューなし | - | `setMenu(null)` |
+
+### フォント設定（src/renderer/index.html）
+
+| ID | 項目 | 期待値 | 検証パターン |
+|----|------|--------|-------------|
+| U4 | フォントサイズ | 16px | `font-size: 16px` |
+| U4 | フォント | Cascadia Code | `Cascadia Code` を含む |
+
+### デフォルトホットキー（src/main/store.ts）
+
+| ID | 項目 | 期待値 | 検証パターン |
+|----|------|--------|-------------|
+| D4 | 起動キー | Ctrl+Shift+D | `toggle: 'Ctrl+Shift+D'` |
+| D5 | コピーキー | Ctrl+Enter | `copy: 'Ctrl+Enter'` |
+| D7 | クリアキー | Ctrl+Shift+L | `clear: 'Ctrl+Shift+L'` |
+
+### デバウンス（src/renderer/index.ts）
+
+| ID | 項目 | 期待値 | 検証パターン |
+|----|------|--------|-------------|
+| D6 | デバウンス間隔 | 500ms | `DEBOUNCE_MS = 500`
+
+---
+
 ## 出力フォーマット（固定）
 
 ```yaml
@@ -118,9 +162,9 @@ spec_path: plan/spec.md
 
 | カテゴリ | 総数 | ✓実装 | ✗未実装 | ⚠乖離 |
 |---------|------|-------|--------|-------|
-| 機能要件 | 8 | N | N | N |
-| データ仕様 | 6 | N | N | N |
-| UI仕様 | 8 | N | N | N |
+| 機能要件 | 9 | N | N | N |
+| データ仕様 | 7 | N | N | N |
+| UI仕様 | 11 | N | N | N |
 | 受け入れ条件 | 8 | N | N | N |
 
 ### 機能要件

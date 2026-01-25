@@ -6,9 +6,11 @@ type HotkeyCallback = () => void;
 
 let currentToggleKey: string | null = null;
 let currentCopyKey: string | null = null;
+let currentClearKey: string | null = null;
 let copyCallback: HotkeyCallback | null = null;
+let clearCallback: HotkeyCallback | null = null;
 
-function normalizeAccelerator(key: string): string {
+export function normalizeAccelerator(key: string): string {
   return key
     .split('+')
     .map((part) => part.trim())
@@ -95,6 +97,40 @@ export function registerCopyHotkey(callback: HotkeyCallback): boolean {
   }
 }
 
+export function registerClearHotkey(callback: HotkeyCallback): boolean {
+  const settings = store.getSettings();
+  const key = normalizeAccelerator(settings.hotkeys.clear);
+
+  if (currentClearKey) {
+    globalShortcut.unregister(currentClearKey);
+    currentClearKey = null;
+  }
+
+  clearCallback = callback;
+
+  try {
+    const success = globalShortcut.register(key, () => {
+      const mainWindow = getMainWindow();
+      if (mainWindow && mainWindow.isVisible()) {
+        if (clearCallback) {
+          clearCallback();
+        }
+      }
+    });
+
+    if (success) {
+      currentClearKey = key;
+      return true;
+    } else {
+      showHotkeyError(key, 'クリア');
+      return false;
+    }
+  } catch (error) {
+    showHotkeyError(key, 'クリア');
+    return false;
+  }
+}
+
 export function unregisterAllHotkeys(): void {
   if (currentToggleKey) {
     globalShortcut.unregister(currentToggleKey);
@@ -104,18 +140,25 @@ export function unregisterAllHotkeys(): void {
     globalShortcut.unregister(currentCopyKey);
     currentCopyKey = null;
   }
+  if (currentClearKey) {
+    globalShortcut.unregister(currentClearKey);
+    currentClearKey = null;
+  }
   copyCallback = null;
+  clearCallback = null;
 }
 
-export function updateHotkeys(callback: HotkeyCallback): { toggle: boolean; copy: boolean } {
+export function updateHotkeys(copyCallbackFn: HotkeyCallback, clearCallbackFn: HotkeyCallback): { toggle: boolean; copy: boolean; clear: boolean } {
   const toggleSuccess = registerToggleHotkey();
-  const copySuccess = registerCopyHotkey(callback);
-  return { toggle: toggleSuccess, copy: copySuccess };
+  const copySuccess = registerCopyHotkey(copyCallbackFn);
+  const clearSuccess = registerClearHotkey(clearCallbackFn);
+  return { toggle: toggleSuccess, copy: copySuccess, clear: clearSuccess };
 }
 
-export function getCurrentHotkeys(): { toggle: string | null; copy: string | null } {
+export function getCurrentHotkeys(): { toggle: string | null; copy: string | null; clear: string | null } {
   return {
     toggle: currentToggleKey,
     copy: currentCopyKey,
+    clear: currentClearKey,
   };
 }

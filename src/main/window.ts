@@ -5,12 +5,12 @@ import { store, Settings } from './store';
 let mainWindow: BrowserWindow | null = null;
 let settingsWindow: BrowserWindow | null = null;
 
-const MIN_WIDTH = 300;
-const MIN_HEIGHT = 200;
-const DEFAULT_WIDTH = 400;
-const DEFAULT_HEIGHT = 300;
-const SETTINGS_WIDTH = 350;
-const SETTINGS_HEIGHT = 250;
+const MIN_WIDTH = 400;
+const MIN_HEIGHT = 300;
+const DEFAULT_WIDTH = 800;
+const DEFAULT_HEIGHT = 450;
+const SETTINGS_WIDTH = 450;
+const SETTINGS_HEIGHT = 450;
 
 function isPositionOnScreen(x: number, y: number): boolean {
   const displays = screen.getAllDisplays();
@@ -59,6 +59,7 @@ export function createMainWindow(): BrowserWindow {
     show: false,
     alwaysOnTop: true,
     skipTaskbar: true,
+    icon: path.join(__dirname, '..', 'assets', 'tray-icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       contextIsolation: true,
@@ -161,6 +162,8 @@ export function createSettingsWindow(): BrowserWindow {
     minimizable: false,
     maximizable: false,
     alwaysOnTop: true,
+    autoHideMenuBar: true,
+    icon: path.join(__dirname, '..', 'assets', 'tray-icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       contextIsolation: true,
@@ -168,6 +171,7 @@ export function createSettingsWindow(): BrowserWindow {
     },
   });
 
+  settingsWindow.setMenu(null);
   settingsWindow.loadFile(path.join(__dirname, '..', 'renderer', 'settings.html'));
 
   // 開発時はDevToolsを開く（F12でも開ける）

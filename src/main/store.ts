@@ -7,6 +7,7 @@ export interface Settings {
   hotkeys: {
     toggle: string;
     copy: string;
+    clear: string;
   };
   window: {
     x: number | null;
@@ -25,12 +26,13 @@ const DEFAULT_SETTINGS: Settings = {
   hotkeys: {
     toggle: 'Ctrl+Shift+D',
     copy: 'Ctrl+Enter',
+    clear: 'Ctrl+Shift+L',
   },
   window: {
     x: null,
     y: null,
-    width: 400,
-    height: 300,
+    width: 800,
+    height: 450,
   },
 };
 
@@ -64,6 +66,7 @@ class AppStore {
       hotkeys: {
         toggle: this.settingsStore.get('hotkeys.toggle', DEFAULT_SETTINGS.hotkeys.toggle),
         copy: this.settingsStore.get('hotkeys.copy', DEFAULT_SETTINGS.hotkeys.copy),
+        clear: this.settingsStore.get('hotkeys.clear', DEFAULT_SETTINGS.hotkeys.clear),
       },
       window: {
         x: this.settingsStore.get('window.x', DEFAULT_SETTINGS.window.x),
@@ -81,6 +84,9 @@ class AppStore {
       }
       if (settings.hotkeys.copy !== undefined) {
         this.settingsStore.set('hotkeys.copy', settings.hotkeys.copy);
+      }
+      if (settings.hotkeys.clear !== undefined) {
+        this.settingsStore.set('hotkeys.clear', settings.hotkeys.clear);
       }
     }
     if (settings.window) {

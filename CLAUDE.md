@@ -10,6 +10,9 @@ DraftDockは、AI/チャットツールの誤送信を防ぐための常駐型�
 
 ## セットアップ
 
+**Windows環境セットアップ**: [`docs/windows-setup-guide.md`](docs/windows-setup-guide.md)
+
+Git Hooks設定（WSL/Linux）:
 ```bash
 chmod +x ./scripts/setup-githooks.sh
 ./scripts/setup-githooks.sh
@@ -126,6 +129,8 @@ src/
 |------|-----------|
 | 起動キー | Ctrl+Shift+D |
 | コピーキー | Ctrl+Enter |
-| ウィンドウサイズ | 400 x 300 px |
-| 最小サイズ | 300 x 200 px |
+| クリアキー | Ctrl+Shift+L |
+| ウィンドウサイズ | 800 x 450 px |
+| 最小サイズ | 400 x 300 px |
+| 設定画面サイズ | 450 x 420 px |
 | デバウンス保存 | 500ms |
