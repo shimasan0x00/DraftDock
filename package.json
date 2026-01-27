@@ -50,7 +50,10 @@
         "zip"
       ],
       "icon": "assets/draft_pad_512.png",
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
     },
     "nsis": {
       "oneClick": false,
