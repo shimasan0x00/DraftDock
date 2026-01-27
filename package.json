@@ -45,7 +45,9 @@
       "icon": "assets/draft_pad.ico"
     },
     "mac": {
-      "target": "dmg"
+      "target": ["dmg", "zip"],
+      "icon": "assets/draft_pad_256.png",
+      "category": "public.app-category.utilities"
     },
     "nsis": {
       "oneClick": false,
