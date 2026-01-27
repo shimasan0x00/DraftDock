@@ -1,6 +1,6 @@
 {
   "name": "draftdock",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "AI/チャットツールの誤送信を防ぐための常駐型下書きアプリケーション",
   "main": "dist/main/main.js",
   "scripts": {
@@ -48,11 +48,15 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "assets/draft_pad_512.png",
