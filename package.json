@@ -46,7 +46,7 @@
     },
     "mac": {
       "target": ["dmg", "zip"],
-      "icon": "assets/draft_pad_256.png",
+      "icon": "assets/draft_pad_512.png",
       "category": "public.app-category.utilities"
     },
     "nsis": {
