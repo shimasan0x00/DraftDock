@@ -89,10 +89,10 @@ jobs:
           path: release/*.exe
           retention-days: 1
 
-  # macOSビルド（x64のみ、Intel runnerで安定ビルド）
+  # macOSビルド（x64のみ、ARM64ランナーでクロスコンパイル）
   build-macos:
     needs: prepare
-    runs-on: macos-13
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
