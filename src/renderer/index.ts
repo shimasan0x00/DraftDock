@@ -3,6 +3,7 @@
   let clearBtn: HTMLButtonElement;
   let copyBtn: HTMLButtonElement;
   let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+  let isComposing = false;
   const DEBOUNCE_MS = 500;
 
   async function loadDraft(): Promise<void> {
@@ -109,7 +110,18 @@
 
     console.log('DraftDock: Setting up event listeners');
 
-    textarea.addEventListener('input', debouncedSave);
+    textarea.addEventListener('input', () => {
+      if (!isComposing) {
+        debouncedSave();
+      }
+    });
+    textarea.addEventListener('compositionstart', () => {
+      isComposing = true;
+    });
+    textarea.addEventListener('compositionend', () => {
+      isComposing = false;
+      debouncedSave();
+    });
     textarea.addEventListener('keydown', handleTextareaKeydown);
     clearBtn.addEventListener('click', clearDraft);
     copyBtn.addEventListener('click', copyAndHide);
