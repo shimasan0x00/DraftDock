@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# pre-commit hook:
+#   1. mainブランチへの直接コミットを禁止
+#   2. spec.md変更時にspec-reviewer更新のリマインダー
+#
+
+# === 1. mainブランチガード ===
+branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+
+if [[ "${branch}" == "main" ]]; then
+  cat <<'EOF'
+ERROR: You are on 'main'. Direct commits on main are prohibited.
+Create a feature branch first:
+  git checkout -b feature/your-task-name
+EOF
+  exit 1
+fi
+
+# === 2. spec.md変更時のリマインダー ===
+if git diff --cached --name-only | grep -q "^plan/spec.md$"; then
+    echo ""
+    echo "=========================================="
+    echo "[spec-update-reminder]"
+    echo "plan/spec.md が変更されています。"
+    echo ""
+    echo "spec-reviewer の検証項目も更新が必要な可能性があります。"
+    echo "  .claude/agents/spec-reviewer.md"
+    echo ""
+    echo "確認コマンド:"
+    echo "  claude \"spec-reviewerの検証項目をspec.mdと同期して\""
+    echo "=========================================="
+    echo ""
+fi
+
+exit 0

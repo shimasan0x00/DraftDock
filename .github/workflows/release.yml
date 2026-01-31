@@ -1,0 +1,197 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'assets/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'vite.*.ts'
+      - 'electron-builder.json5'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # バージョン判定（1回のみ、Linux runnerで高速化）
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      bumped: ${{ steps.version.outputs.bumped }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Determine version
+        id: version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+
+          # Check if tag exists
+          if git rev-parse "v${CURRENT_VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${CURRENT_VERSION} exists, bumping patch version"
+
+            # Parse version and increment patch
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+            NEW_PATCH=$((PATCH + 1))
+            NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+
+            echo "New version: $NEW_VERSION"
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "bumped=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v${CURRENT_VERSION} does not exist, using current version"
+            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            echo "bumped=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Windowsビルド
+  build-windows:
+    needs: prepare
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update version for build
+        run: npm version ${{ needs.prepare.outputs.version }} --no-git-tag-version
+
+      - name: Build and Package
+        run: npm run dist -- --win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: release/*.exe
+          retention-days: 1
+
+  # macOSビルド（x64のみ、ARM64ランナーでクロスコンパイル）
+  build-macos:
+    needs: prepare
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update version for build
+        run: npm version ${{ needs.prepare.outputs.version }} --no-git-tag-version
+
+      - name: Build and Package
+        run: npm run dist -- --mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: |
+            release/*.dmg
+            release/*.zip
+          retention-days: 1
+
+  # リリース作成
+  release:
+    needs: [prepare, build-windows, build-macos]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update package.json version
+        if: needs.prepare.outputs.bumped == 'true'
+        run: |
+          npm version ${{ needs.prepare.outputs.version }} --no-git-tag-version
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to ${{ needs.prepare.outputs.version }}"
+          git push origin main
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+          path: release
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-release
+          path: release
+
+      - name: List release files
+        run: ls -la release/
+
+      - name: Create Tag
+        run: |
+          git tag v${{ needs.prepare.outputs.version }}
+          git push origin v${{ needs.prepare.outputs.version }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.prepare.outputs.version }}
+          name: DraftDock v${{ needs.prepare.outputs.version }}
+          files: |
+            release/*.exe
+            release/*.dmg
+            release/*.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
