@@ -80,6 +80,7 @@ jobs:
         run: npm ci
 
       - name: Update version for build
+        if: needs.prepare.outputs.bumped == 'true'
         run: npm version ${{ needs.prepare.outputs.version }} --no-git-tag-version
 
       - name: Build and Package
@@ -113,6 +114,7 @@ jobs:
         run: npm ci
 
       - name: Update version for build
+        if: needs.prepare.outputs.bumped == 'true'
         run: npm version ${{ needs.prepare.outputs.version }} --no-git-tag-version
 
       - name: Build and Package
