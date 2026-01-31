@@ -2,16 +2,34 @@
 
 AI/チャットツールの誤送信を防ぐための常駐型下書きアプリケーション。
 
+## 対応OS
+
+- Windows (x64)
+- macOS (Intel x64)
+
 ## ダウンロード
 
-[Releases](https://github.com/shimasan0x00/DraftDock/releases) からWindows用インストーラー（.exe）をダウンロードできます。
+[Releases](https://github.com/shimasan0x00/DraftDock/releases) からダウンロードできます。
+
+| OS | ファイル |
+|----|---------|
+| Windows | `.exe`（NSISインストーラー） |
+| macOS (Intel) | `.dmg` または `.zip` |
 
 ## 概要
+
+<p align="center">
+  <img src=".readme/draftdock.png" alt="DraftDock メイン画面" width="600">
+</p>
 
 - **ホットキーで即呼び出し** - どんなアプリを使っていても `Ctrl+Shift+D` で下書きウィンドウを表示
 - **ワンアクションでコピー** - `Ctrl+Enter` でクリップボードにコピーしてウィンドウを閉じる
 - **ワンアクションでクリア** - `Ctrl+Shift+L` で下書きをクリア
 - **下書きが消えない** - ウィンドウを閉じてもアプリを再起動しても下書きが復元される
+
+<p align="center">
+  <img src=".readme/settings.png" alt="DraftDock 設定画面" width="450">
+</p>
 
 ## 機能
 
@@ -31,9 +49,19 @@ AI/チャットツールの誤送信を防ぐための常駐型下書きアプ�
 | クリア | `Ctrl+Shift+L` |
 | 閉じる | `Escape` |
 
+> **Note**: macOSでも現在はCtrl系のキーバインドです。設定画面からカスタマイズ可能です。
+
 すべてのホットキーは設定画面（トレイアイコン → 設定）からカスタマイズ可能です。
 
 ## インストール
+
+### macOS
+
+DraftDockはad-hoc署名のため、初回起動時にGatekeeperの警告が表示されます。以下のコマンドで回避できます:
+
+```bash
+xattr -cr /Applications/DraftDock.app
+```
 
 ### 開発環境
 
@@ -102,7 +130,13 @@ assets/
 ### データ保存場所
 
 ```
+# Windows
 %APPDATA%\draftdock\
+├── settings.json   # 設定（ホットキー、ウィンドウ位置）
+└── draft.json      # 下書き
+
+# macOS
+~/Library/Application Support/draftdock/
 ├── settings.json   # 設定（ホットキー、ウィンドウ位置）
 └── draft.json      # 下書き
 ```
