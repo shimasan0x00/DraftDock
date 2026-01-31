@@ -1,6 +1,7 @@
 {
   "name": "draftdock",
   "version": "0.1.8",
+  "author": "shimasan0x00",
   "description": "AI/チャットツールの誤送信を防ぐための常駐型下書きアプリケーション",
   "main": "dist/main/main.js",
   "scripts": {
@@ -17,7 +18,6 @@
     "test:e2e:headed": "playwright test --headed",
     "pretest:e2e": "npm run build"
   },
-  "author": "",
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.58.0",
