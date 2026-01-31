@@ -1,6 +1,6 @@
 {
   "name": "draftdock",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "author": "shimasan0x00",
   "description": "AI/チャットツールの誤送信を防ぐための常駐型下書きアプリケーション",
   "main": "dist/main/main.js",
