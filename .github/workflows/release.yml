@@ -178,6 +178,15 @@ jobs:
       - name: List release files
         run: ls -la release/
 
+      - name: Delete existing release and tag (if re-run)
+        run: |
+          VERSION="v${{ needs.prepare.outputs.version }}"
+          gh release delete "$VERSION" --yes --cleanup-tag 2>/dev/null || true
+          git tag -d "$VERSION" 2>/dev/null || true
+          git push origin ":refs/tags/$VERSION" 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Tag
         run: |
           git tag v${{ needs.prepare.outputs.version }}
