@@ -92,6 +92,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Run E2E tests
+        run: npx playwright test
+        env:
+          CI: true
+
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -126,6 +131,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Run E2E tests
+        run: npx playwright test
+        env:
+          CI: true
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
