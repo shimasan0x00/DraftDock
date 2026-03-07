@@ -187,10 +187,11 @@ export function destroyMainWindow(): void {
 }
 
 export function createSettingsWindow(): BrowserWindow {
-  if (settingsWindow) {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
     settingsWindow.focus();
     return settingsWindow;
   }
+  settingsWindow = null;
 
   const center = getCenterPosition(SETTINGS_WIDTH, SETTINGS_HEIGHT);
 
@@ -221,10 +222,10 @@ export function createSettingsWindow(): BrowserWindow {
 }
 
 export function closeSettingsWindow(): void {
-  if (settingsWindow) {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
     settingsWindow.close();
-    settingsWindow = null;
   }
+  settingsWindow = null;
 }
 
 export function getSettingsWindow(): BrowserWindow | null {

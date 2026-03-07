@@ -15,6 +15,7 @@ const {
     focus: vi.fn(),
     close: vi.fn(),
     isVisible: vi.fn().mockReturnValue(false),
+    isDestroyed: vi.fn().mockReturnValue(false),
     getBounds: vi.fn().mockReturnValue({ x: 100, y: 100, width: 800, height: 450 }),
     removeAllListeners: vi.fn(),
     setMenu: vi.fn(),

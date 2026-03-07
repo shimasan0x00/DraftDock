@@ -140,6 +140,8 @@ function setupIpcHandlers(): void {
     const { toggle, copy, clear } = settings;
 
     try {
+      const oldSettings = store.getSettings();
+
       store.setSettings({
         hotkeys: { toggle, copy, clear },
       });
@@ -152,6 +154,10 @@ function setupIpcHandlers(): void {
           sendToMainWindow('clear-requested');
         }
       );
+
+      if (!result.toggle && !result.copy && !result.clear) {
+        store.setSettings({ hotkeys: oldSettings.hotkeys });
+      }
 
       createApplicationMenu();
       closeSettingsWindow();

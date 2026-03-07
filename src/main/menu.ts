@@ -17,13 +17,18 @@ export function createApplicationMenu(): void {
           },
         },
         { type: 'separator' },
-        {
-          label: '終了',
-          accelerator: 'Alt+F4',
-          click: () => {
-            app.quit();
-          },
-        },
+        ...(process.platform === 'darwin'
+          ? [{
+              label: '終了',
+              accelerator: 'CommandOrControl+Q' as const,
+              click: () => { app.quit(); },
+            }]
+          : [{
+              label: '終了',
+              accelerator: 'Alt+F4' as const,
+              click: () => { app.quit(); },
+            }]
+        ),
       ],
     },
     {

@@ -274,6 +274,10 @@ describe('IPC Handlers', () => {
     const validSettings = { toggle: 'Ctrl+Shift+D', copy: 'Ctrl+Enter', clear: 'Ctrl+Shift+L' };
 
     it('正常な設定を保存しupdateHotkeysの結果を返す', () => {
+      mockStore.getSettings.mockReturnValue({
+        hotkeys: { toggle: 'Ctrl+Shift+D', copy: 'Ctrl+Enter', clear: 'Ctrl+Shift+L' },
+        window: { x: null, y: null, width: 800, height: 450 },
+      });
       const result = getHandler('save-settings')(null, validSettings);
       expect(result).toEqual({ toggle: true, copy: true, clear: true });
       expect(mockStore.setSettings).toHaveBeenCalledWith({
@@ -297,8 +301,43 @@ describe('IPC Handlers', () => {
       expect(result).toEqual({ toggle: false, copy: false, clear: false });
     });
 
+    it('全ホットキー登録失敗時に旧設定にロールバックする', () => {
+      const oldSettings = {
+        hotkeys: { toggle: 'Ctrl+Shift+D', copy: 'Ctrl+Enter', clear: 'Ctrl+Shift+L' },
+        window: { x: null, y: null, width: 800, height: 450 },
+      };
+      mockStore.getSettings.mockReturnValue(oldSettings);
+      mockUpdateHotkeys.mockReturnValueOnce({ toggle: false, copy: false, clear: false });
+
+      const result = getHandler('save-settings')(null, {
+        toggle: 'Ctrl+Shift+X', copy: 'Ctrl+Shift+Y', clear: 'Ctrl+Shift+Z',
+      });
+      expect(result).toEqual({ toggle: false, copy: false, clear: false });
+      expect(mockStore.setSettings).toHaveBeenCalledTimes(2);
+      expect(mockStore.setSettings).toHaveBeenLastCalledWith({ hotkeys: oldSettings.hotkeys });
+    });
+
+    it('部分的なホットキー登録失敗時はロールバックしない', () => {
+      const oldSettings = {
+        hotkeys: { toggle: 'Ctrl+Shift+D', copy: 'Ctrl+Enter', clear: 'Ctrl+Shift+L' },
+        window: { x: null, y: null, width: 800, height: 450 },
+      };
+      mockStore.getSettings.mockReturnValue(oldSettings);
+      mockUpdateHotkeys.mockReturnValueOnce({ toggle: true, copy: false, clear: false });
+
+      const result = getHandler('save-settings')(null, {
+        toggle: 'Ctrl+Shift+X', copy: 'Ctrl+Shift+Y', clear: 'Ctrl+Shift+Z',
+      });
+      expect(result).toEqual({ toggle: true, copy: false, clear: false });
+      expect(mockStore.setSettings).toHaveBeenCalledTimes(1);
+    });
+
     it('store例外時に全falseを返しエラーログを出力する', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      mockStore.getSettings.mockReturnValue({
+        hotkeys: { toggle: 'Ctrl+Shift+D', copy: 'Ctrl+Enter', clear: 'Ctrl+Shift+L' },
+        window: { x: null, y: null, width: 800, height: 450 },
+      });
       mockStore.setSettings.mockImplementationOnce(() => { throw new Error('write error'); });
 
       const result = getHandler('save-settings')(null, validSettings);

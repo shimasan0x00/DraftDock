@@ -113,9 +113,9 @@
           clear: pendingClearKey,
         });
         const failedKeys: string[] = [];
-        if (!result.toggle) failedKeys.push('起動キー');
-        if (!result.copy) failedKeys.push('コピーキー');
-        if (!result.clear) failedKeys.push('クリアキー');
+        if (!result.toggle) failedKeys.push(`起動キー (${pendingToggleKey})`);
+        if (!result.copy) failedKeys.push(`コピーキー (${pendingCopyKey})`);
+        if (!result.clear) failedKeys.push(`クリアキー (${pendingClearKey})`);
         if (failedKeys.length > 0) {
           alert(`以下のホットキーの登録に失敗しました:\n${failedKeys.join('\n')}\n\n他のアプリケーションで使用されている可能性があります。`);
         }
