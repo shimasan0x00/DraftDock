@@ -6,6 +6,13 @@ import { store } from './store';
 import { createApplicationMenu } from './menu';
 import { validateDraftContent, validateCopyText, validateHotkeySettings } from './validators';
 
+function sendToMainWindow(channel: string): void {
+  const mainWindow = getMainWindow();
+  if (mainWindow) {
+    mainWindow.webContents.send(channel);
+  }
+}
+
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
@@ -22,16 +29,10 @@ if (!gotTheLock) {
 
     registerToggleHotkey();
     registerCopyHotkey(() => {
-      const mainWindow = getMainWindow();
-      if (mainWindow) {
-        mainWindow.webContents.send('copy-requested');
-      }
+      sendToMainWindow('copy-requested');
     });
     registerClearHotkey(() => {
-      const mainWindow = getMainWindow();
-      if (mainWindow) {
-        mainWindow.webContents.send('clear-requested');
-      }
+      sendToMainWindow('clear-requested');
     });
 
     setupIpcHandlers();
@@ -97,19 +98,14 @@ function setupIpcHandlers(): void {
 
     const result = updateHotkeys(
       () => {
-        const mainWindow = getMainWindow();
-        if (mainWindow) {
-          mainWindow.webContents.send('copy-requested');
-        }
+        sendToMainWindow('copy-requested');
       },
       () => {
-        const mainWindow = getMainWindow();
-        if (mainWindow) {
-          mainWindow.webContents.send('clear-requested');
-        }
+        sendToMainWindow('clear-requested');
       }
     );
 
+    createApplicationMenu();
     closeSettingsWindow();
     return result;
   });

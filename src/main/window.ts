@@ -4,6 +4,8 @@ import { store, Settings } from './store';
 
 let mainWindow: BrowserWindow | null = null;
 let settingsWindow: BrowserWindow | null = null;
+let savePositionTimeout: ReturnType<typeof setTimeout> | null = null;
+const SAVE_POSITION_DEBOUNCE_MS = 500;
 
 const MIN_WIDTH = 400;
 const MIN_HEIGHT = 300;
@@ -64,6 +66,7 @@ export function createMainWindow(): BrowserWindow {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
   });
 
@@ -83,14 +86,24 @@ export function createMainWindow(): BrowserWindow {
   });
 
   mainWindow.on('moved', () => {
-    saveWindowPosition();
+    debouncedSaveWindowPosition();
   });
 
   mainWindow.on('resized', () => {
-    saveWindowPosition();
+    debouncedSaveWindowPosition();
   });
 
   return mainWindow;
+}
+
+function debouncedSaveWindowPosition(): void {
+  if (savePositionTimeout) {
+    clearTimeout(savePositionTimeout);
+  }
+  savePositionTimeout = setTimeout(() => {
+    saveWindowPosition();
+    savePositionTimeout = null;
+  }, SAVE_POSITION_DEBOUNCE_MS);
 }
 
 function saveWindowPosition(): void {
@@ -169,6 +182,7 @@ export function createSettingsWindow(): BrowserWindow {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
   });
 
