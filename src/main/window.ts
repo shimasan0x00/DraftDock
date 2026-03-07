@@ -16,6 +16,9 @@ const SETTINGS_HEIGHT = 450;
 
 const MIN_VISIBLE_SIZE = 100;
 
+// ウィンドウが画面内に十分表示されているかを判定する。
+// 各ディスプレイとウィンドウの重複領域（overlap）を計算し、
+// 縦横ともにMIN_VISIBLE_SIZE以上の重なりがあれば「画面内」と判定。
 function isPositionOnScreen(x: number, y: number, winWidth: number, winHeight: number): boolean {
   const displays = screen.getAllDisplays();
   for (const display of displays) {
@@ -27,6 +30,25 @@ function isPositionOnScreen(x: number, y: number, winWidth: number, winHeight: n
     }
   }
   return false;
+}
+
+function getSecureWebPreferences(): Electron.WebPreferences {
+  return {
+    preload: path.join(__dirname, '..', 'preload', 'preload.js'),
+    contextIsolation: true,
+    nodeIntegration: false,
+    sandbox: true,
+  };
+}
+
+function setupDevToolsShortcut(window: BrowserWindow): void {
+  if (!app.isPackaged) {
+    window.webContents.on('before-input-event', (_event, input) => {
+      if (input.key === 'F12') {
+        window.webContents.toggleDevTools();
+      }
+    });
+  }
 }
 
 function getCenterPosition(width: number, height: number): { x: number; y: number } {
@@ -66,23 +88,12 @@ export function createMainWindow(): BrowserWindow {
     alwaysOnTop: true,
     skipTaskbar: true,
     icon: path.join(__dirname, '..', 'assets', 'draft_pad_256.png'),
-    webPreferences: {
-      preload: path.join(__dirname, '..', 'preload', 'preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: true,
-    },
+    webPreferences: getSecureWebPreferences(),
   });
 
   mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
 
-  if (!app.isPackaged) {
-    mainWindow.webContents.on('before-input-event', (_event, input) => {
-      if (input.key === 'F12') {
-        mainWindow?.webContents.toggleDevTools();
-      }
-    });
-  }
+  setupDevToolsShortcut(mainWindow);
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
@@ -122,14 +133,18 @@ function saveWindowPosition(): void {
   if (!mainWindow) return;
 
   const bounds = mainWindow.getBounds();
-  store.setSettings({
-    window: {
-      x: bounds.x,
-      y: bounds.y,
-      width: bounds.width,
-      height: bounds.height,
-    },
-  });
+  try {
+    store.setSettings({
+      window: {
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to save window position:', error);
+  }
 }
 
 export function showMainWindow(): void {
@@ -190,24 +205,13 @@ export function createSettingsWindow(): BrowserWindow {
     alwaysOnTop: true,
     autoHideMenuBar: true,
     icon: path.join(__dirname, '..', 'assets', 'draft_pad_256.png'),
-    webPreferences: {
-      preload: path.join(__dirname, '..', 'preload', 'preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: true,
-    },
+    webPreferences: getSecureWebPreferences(),
   });
 
   settingsWindow.setMenu(null);
   settingsWindow.loadFile(path.join(__dirname, '..', 'renderer', 'settings.html'));
 
-  if (!app.isPackaged) {
-    settingsWindow.webContents.on('before-input-event', (_event, input) => {
-      if (input.key === 'F12') {
-        settingsWindow?.webContents.toggleDevTools();
-      }
-    });
-  }
+  setupDevToolsShortcut(settingsWindow);
 
   settingsWindow.on('closed', () => {
     settingsWindow = null;
