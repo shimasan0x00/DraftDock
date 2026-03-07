@@ -56,7 +56,9 @@ function setupIpcHandlers(): void {
     return store.getDraft();
   });
 
-  ipcMain.handle('save-draft', (_event, content: string) => {
+  ipcMain.handle('save-draft', (_event, content: unknown) => {
+    if (typeof content !== 'string') return false;
+    if (content.length > 1_000_000) return false;
     store.setDraft(content);
     return true;
   });
@@ -66,13 +68,12 @@ function setupIpcHandlers(): void {
     return true;
   });
 
-  ipcMain.handle('copy-to-clipboard', (_event, text: string) => {
-    if (text && text.length > 0) {
-      clipboard.writeText(text);
-      hideMainWindow();
-      return true;
-    }
-    return false;
+  ipcMain.handle('copy-to-clipboard', (_event, text: unknown) => {
+    if (typeof text !== 'string') return false;
+    if (text.length === 0 || text.length > 1_000_000) return false;
+    clipboard.writeText(text);
+    hideMainWindow();
+    return true;
   });
 
   ipcMain.handle('hide-window', () => {
@@ -84,13 +85,28 @@ function setupIpcHandlers(): void {
     return store.getSettings();
   });
 
-  ipcMain.handle('save-settings', (_event, settings: { toggle: string; copy: string; clear: string }) => {
+  ipcMain.handle('save-settings', (_event, settings: unknown) => {
+    if (
+      typeof settings !== 'object' || settings === null ||
+      typeof (settings as any).toggle !== 'string' ||
+      typeof (settings as any).copy !== 'string' ||
+      typeof (settings as any).clear !== 'string'
+    ) {
+      return { toggle: false, copy: false, clear: false };
+    }
+
+    const { toggle, copy, clear } = settings as { toggle: string; copy: string; clear: string };
+
+    if (toggle.length > 50 || copy.length > 50 || clear.length > 50) {
+      return { toggle: false, copy: false, clear: false };
+    }
+
+    if (toggle.length === 0 || copy.length === 0 || clear.length === 0) {
+      return { toggle: false, copy: false, clear: false };
+    }
+
     store.setSettings({
-      hotkeys: {
-        toggle: settings.toggle,
-        copy: settings.copy,
-        clear: settings.clear,
-      },
+      hotkeys: { toggle, copy, clear },
     });
 
     const result = updateHotkeys(
