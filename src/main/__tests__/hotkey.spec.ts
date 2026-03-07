@@ -1,30 +1,55 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+const { mockGlobalShortcut, mockNotificationShow, mockStoreGetSettings } = vi.hoisted(() => {
+  const mockGlobalShortcut = {
+    register: vi.fn(),
+    unregister: vi.fn(),
+  };
+  const mockNotificationShow = vi.fn();
+  const mockStoreGetSettings = vi.fn().mockReturnValue({
+    hotkeys: {
+      toggle: 'Ctrl+Shift+D',
+      copy: 'Ctrl+Enter',
+      clear: 'Ctrl+Shift+L',
+    },
+    window: { x: null, y: null, width: 800, height: 450 },
+  });
+  return { mockGlobalShortcut, mockNotificationShow, mockStoreGetSettings };
+});
 
 // Electron依存をモック
 vi.mock('electron', () => ({
   app: {
     getPath: vi.fn().mockReturnValue('/tmp/test'),
   },
-  globalShortcut: {
-    register: vi.fn(),
-    unregister: vi.fn(),
-  },
-  Notification: vi.fn().mockImplementation(() => ({
-    show: vi.fn(),
-  })),
+  globalShortcut: mockGlobalShortcut,
+  Notification: vi.fn().mockImplementation(function() {
+    return { show: mockNotificationShow };
+  }),
 }));
 
-vi.mock('electron-store', () => {
-  return {
-    default: class MockStore {
-      get() { return undefined; }
-      set() {}
-      clear() {}
-    },
-  };
-});
+vi.mock('electron-store', () => ({
+  default: class MockStore {
+    get() { return undefined; }
+    set() {}
+    clear() {}
+  },
+}));
 
-import { normalizeAccelerator } from '../hotkey';
+vi.mock('../store', () => ({
+  store: {
+    getSettings: mockStoreGetSettings,
+  },
+}));
+
+vi.mock('../window', () => ({
+  toggleMainWindow: vi.fn(),
+  getMainWindow: vi.fn().mockReturnValue({
+    isVisible: vi.fn().mockReturnValue(true),
+  }),
+}));
+
+import { normalizeAccelerator, registerToggleHotkey, registerCopyHotkey, registerClearHotkey, unregisterAllHotkeys, updateHotkeys, getCurrentHotkeys } from '../hotkey';
 
 describe('normalizeAccelerator', () => {
   // HK-01: Ctrl+Shift+D → CommandOrControl+Shift+D
@@ -107,5 +132,162 @@ describe('normalizeAccelerator', () => {
       expect(normalizeAccelerator('Ctrl+Alt+Delete')).toBe('CommandOrControl+Alt+Delete');
       expect(normalizeAccelerator('Ctrl+Shift+Alt+A')).toBe('CommandOrControl+Shift+Alt+A');
     });
+  });
+});
+
+describe('registerToggleHotkey', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // 現在のホットキーをリセット
+    unregisterAllHotkeys();
+    vi.clearAllMocks();
+  });
+
+  it('登録成功時にtrueを返す', () => {
+    mockGlobalShortcut.register.mockReturnValue(true);
+    const result = registerToggleHotkey();
+    expect(result).toBe(true);
+    expect(mockGlobalShortcut.register).toHaveBeenCalledWith(
+      'CommandOrControl+Shift+D',
+      expect.any(Function)
+    );
+  });
+
+  it('登録失敗時にfalseを返しNotificationを表示する', () => {
+    mockGlobalShortcut.register.mockReturnValue(false);
+    const result = registerToggleHotkey();
+    expect(result).toBe(false);
+    expect(mockNotificationShow).toHaveBeenCalled();
+  });
+
+  it('register例外時にfalseを返す', () => {
+    mockGlobalShortcut.register.mockImplementation(() => { throw new Error('fail'); });
+    const result = registerToggleHotkey();
+    expect(result).toBe(false);
+    expect(mockNotificationShow).toHaveBeenCalled();
+  });
+});
+
+describe('registerCopyHotkey', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    unregisterAllHotkeys();
+    vi.clearAllMocks();
+  });
+
+  it('登録成功時にtrueを返す', () => {
+    mockGlobalShortcut.register.mockReturnValue(true);
+    const callback = vi.fn();
+    const result = registerCopyHotkey(callback);
+    expect(result).toBe(true);
+    expect(mockGlobalShortcut.register).toHaveBeenCalledWith(
+      'CommandOrControl+Return',
+      expect.any(Function)
+    );
+  });
+
+  it('登録失敗時にfalseを返す', () => {
+    mockGlobalShortcut.register.mockReturnValue(false);
+    const result = registerCopyHotkey(vi.fn());
+    expect(result).toBe(false);
+  });
+});
+
+describe('registerClearHotkey', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    unregisterAllHotkeys();
+    vi.clearAllMocks();
+  });
+
+  it('登録成功時にtrueを返す', () => {
+    mockGlobalShortcut.register.mockReturnValue(true);
+    const callback = vi.fn();
+    const result = registerClearHotkey(callback);
+    expect(result).toBe(true);
+    expect(mockGlobalShortcut.register).toHaveBeenCalledWith(
+      'CommandOrControl+Shift+L',
+      expect.any(Function)
+    );
+  });
+});
+
+describe('unregisterAllHotkeys', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('登録済みキーをすべて解除する', () => {
+    mockGlobalShortcut.register.mockReturnValue(true);
+    registerToggleHotkey();
+    registerCopyHotkey(vi.fn());
+    registerClearHotkey(vi.fn());
+    vi.clearAllMocks();
+
+    unregisterAllHotkeys();
+
+    expect(mockGlobalShortcut.unregister).toHaveBeenCalledTimes(3);
+    const keys = getCurrentHotkeys();
+    expect(keys.toggle).toBeNull();
+    expect(keys.copy).toBeNull();
+    expect(keys.clear).toBeNull();
+  });
+
+  it('未登録状態でも安全に呼べる', () => {
+    unregisterAllHotkeys();
+    expect(mockGlobalShortcut.unregister).not.toHaveBeenCalled();
+  });
+});
+
+describe('updateHotkeys', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    unregisterAllHotkeys();
+    vi.clearAllMocks();
+  });
+
+  it('3キー一括更新して結果を返す', () => {
+    mockGlobalShortcut.register.mockReturnValue(true);
+    const copyFn = vi.fn();
+    const clearFn = vi.fn();
+
+    const result = updateHotkeys(copyFn, clearFn);
+    expect(result).toEqual({ toggle: true, copy: true, clear: true });
+    expect(mockGlobalShortcut.register).toHaveBeenCalledTimes(3);
+  });
+
+  it('一部失敗時に個別の結果を返す', () => {
+    mockGlobalShortcut.register
+      .mockReturnValueOnce(true)   // toggle
+      .mockReturnValueOnce(false)  // copy
+      .mockReturnValueOnce(true);  // clear
+
+    const result = updateHotkeys(vi.fn(), vi.fn());
+    expect(result).toEqual({ toggle: true, copy: false, clear: true });
+  });
+});
+
+describe('getCurrentHotkeys', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    unregisterAllHotkeys();
+    vi.clearAllMocks();
+  });
+
+  it('登録前はすべてnull', () => {
+    const keys = getCurrentHotkeys();
+    expect(keys).toEqual({ toggle: null, copy: null, clear: null });
+  });
+
+  it('登録後はキー文字列を返す', () => {
+    mockGlobalShortcut.register.mockReturnValue(true);
+    registerToggleHotkey();
+    registerCopyHotkey(vi.fn());
+    registerClearHotkey(vi.fn());
+
+    const keys = getCurrentHotkeys();
+    expect(keys.toggle).toBe('CommandOrControl+Shift+D');
+    expect(keys.copy).toBe('CommandOrControl+Return');
+    expect(keys.clear).toBe('CommandOrControl+Shift+L');
   });
 });
