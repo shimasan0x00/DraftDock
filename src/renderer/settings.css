@@ -87,6 +87,10 @@ button {
   background-color: #4c4c4c;
 }
 
+#cancel-btn:active {
+  background-color: #5c5c5c;
+}
+
 #save-btn {
   background-color: #007acc;
   color: #ffffff;

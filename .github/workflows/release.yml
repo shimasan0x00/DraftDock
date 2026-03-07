@@ -10,8 +10,6 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig.json'
-      - 'vite.*.ts'
-      - 'electron-builder.json5'
       - '.github/workflows/**'
   workflow_dispatch:
 
@@ -36,6 +34,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
 
       - name: Determine version
         id: version
@@ -79,9 +83,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit tests
-        run: npm run test:unit
-
       - name: Update version for build
         if: needs.prepare.outputs.bumped == 'true'
         run: npm version ${{ needs.prepare.outputs.version }} --no-git-tag-version
@@ -96,7 +97,7 @@ jobs:
         with:
           name: windows-release
           path: release/*.exe
-          retention-days: 1
+          retention-days: 3
 
   # macOSビルド（x64のみ、ARM64ランナーでクロスコンパイル）
   build-macos:
@@ -116,9 +117,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit tests
-        run: npm run test:unit
-
       - name: Update version for build
         if: needs.prepare.outputs.bumped == 'true'
         run: npm version ${{ needs.prepare.outputs.version }} --no-git-tag-version
@@ -136,7 +134,7 @@ jobs:
           path: |
             release/*.dmg
             release/*.zip
-          retention-days: 1
+          retention-days: 3
 
   # リリース作成
   release:

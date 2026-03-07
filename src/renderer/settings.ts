@@ -64,8 +64,6 @@
   }
 
   function init(): void {
-    console.log('DraftDock Settings: init started');
-
     toggleInput = document.getElementById('toggle-hotkey') as HTMLInputElement;
     copyInput = document.getElementById('copy-hotkey') as HTMLInputElement;
     clearInput = document.getElementById('clear-hotkey') as HTMLInputElement;
@@ -82,32 +80,25 @@
       return;
     }
 
-    console.log('DraftDock Settings: Setting up event listeners');
-
     toggleInput.addEventListener('keydown', (event) => {
       handleHotkeyInput(event, toggleInput, (key) => {
         pendingToggleKey = key;
-        console.log('DraftDock Settings: Toggle key set to', key);
       });
     });
 
     copyInput.addEventListener('keydown', (event) => {
       handleHotkeyInput(event, copyInput, (key) => {
         pendingCopyKey = key;
-        console.log('DraftDock Settings: Copy key set to', key);
       });
     });
 
     clearInput.addEventListener('keydown', (event) => {
       handleHotkeyInput(event, clearInput, (key) => {
         pendingClearKey = key;
-        console.log('DraftDock Settings: Clear key set to', key);
       });
     });
 
     saveBtn.addEventListener('click', async () => {
-      console.log('DraftDock Settings: Save button clicked', { toggle: pendingToggleKey, copy: pendingCopyKey, clear: pendingClearKey });
-
       const keys = [pendingToggleKey, pendingCopyKey, pendingClearKey];
       const uniqueKeys = new Set(keys.map(k => k.toLowerCase()));
       if (uniqueKeys.size !== keys.length) {
@@ -121,8 +112,6 @@
           copy: pendingCopyKey,
           clear: pendingClearKey,
         });
-        console.log('DraftDock Settings: Save result', result);
-
         const failedKeys: string[] = [];
         if (!result.toggle) failedKeys.push('起動キー');
         if (!result.copy) failedKeys.push('コピーキー');
@@ -136,7 +125,6 @@
     });
 
     cancelBtn.addEventListener('click', async () => {
-      console.log('DraftDock Settings: Cancel button clicked');
       try {
         await window.draftdock.closeSettings();
       } catch (error) {
