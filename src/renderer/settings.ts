@@ -44,7 +44,7 @@
     else if (key.length === 1) normalizedKey = key.toUpperCase();
     else normalizedKey = key;
 
-    if (modifiers.length === 0 && !['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'].includes(normalizedKey)) {
+    if (modifiers.length === 0 && !/^F([1-9]|1[0-2])$/.test(normalizedKey)) {
       return null;
     }
 

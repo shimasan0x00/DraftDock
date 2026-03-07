@@ -141,6 +141,10 @@
       copyAndHide();
     });
 
+    window.addEventListener('beforeunload', () => {
+      window.draftdock.removeAllListeners();
+    });
+
     loadDraft().then(() => {
       console.log('DraftDock: Draft loaded');
       focusTextarea();

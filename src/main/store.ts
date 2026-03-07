@@ -1,7 +1,5 @@
 import Store from 'electron-store';
 import { app } from 'electron';
-import * as path from 'path';
-import * as fs from 'fs';
 
 export interface Settings {
   hotkeys: {

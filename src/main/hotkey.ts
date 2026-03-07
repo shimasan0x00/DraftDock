@@ -36,99 +36,65 @@ function showHotkeyError(key: string, action: string): void {
   }).show();
 }
 
-export function registerToggleHotkey(): boolean {
+function registerHotkeyInternal(
+  settingsKey: 'toggle' | 'copy' | 'clear',
+  callback: () => void,
+  label: string,
+  currentKeyRef: { value: string | null }
+): boolean {
   const settings = store.getSettings();
-  const key = normalizeAccelerator(settings.hotkeys.toggle);
+  const key = normalizeAccelerator(settings.hotkeys[settingsKey]);
 
-  if (currentToggleKey) {
-    globalShortcut.unregister(currentToggleKey);
-    currentToggleKey = null;
+  if (currentKeyRef.value) {
+    globalShortcut.unregister(currentKeyRef.value);
+    currentKeyRef.value = null;
   }
 
   try {
-    const success = globalShortcut.register(key, () => {
-      toggleMainWindow();
-    });
-
+    const success = globalShortcut.register(key, callback);
     if (success) {
-      currentToggleKey = key;
+      currentKeyRef.value = key;
       return true;
     } else {
-      showHotkeyError(key, '起動');
+      showHotkeyError(key, label);
       return false;
     }
-  } catch (error) {
-    showHotkeyError(key, '起動');
+  } catch {
+    showHotkeyError(key, label);
     return false;
   }
+}
+
+const toggleKeyRef = { get value() { return currentToggleKey; }, set value(v) { currentToggleKey = v; } };
+const copyKeyRef = { get value() { return currentCopyKey; }, set value(v) { currentCopyKey = v; } };
+const clearKeyRef = { get value() { return currentClearKey; }, set value(v) { currentClearKey = v; } };
+
+export function registerToggleHotkey(): boolean {
+  return registerHotkeyInternal('toggle', () => { toggleMainWindow(); }, '起動', toggleKeyRef);
 }
 
 export function registerCopyHotkey(callback: HotkeyCallback): boolean {
-  const settings = store.getSettings();
-  const key = normalizeAccelerator(settings.hotkeys.copy);
-
-  if (currentCopyKey) {
-    globalShortcut.unregister(currentCopyKey);
-    currentCopyKey = null;
-  }
-
   copyCallback = callback;
-
-  try {
-    const success = globalShortcut.register(key, () => {
-      const mainWindow = getMainWindow();
-      if (mainWindow && mainWindow.isVisible()) {
-        if (copyCallback) {
-          copyCallback();
-        }
+  return registerHotkeyInternal('copy', () => {
+    const mainWindow = getMainWindow();
+    if (mainWindow && mainWindow.isVisible()) {
+      if (copyCallback) {
+        copyCallback();
       }
-    });
-
-    if (success) {
-      currentCopyKey = key;
-      return true;
-    } else {
-      showHotkeyError(key, 'コピー');
-      return false;
     }
-  } catch (error) {
-    showHotkeyError(key, 'コピー');
-    return false;
-  }
+  }, 'コピー', copyKeyRef);
 }
 
 export function registerClearHotkey(callback: HotkeyCallback): boolean {
-  const settings = store.getSettings();
-  const key = normalizeAccelerator(settings.hotkeys.clear);
-
-  if (currentClearKey) {
-    globalShortcut.unregister(currentClearKey);
-    currentClearKey = null;
-  }
-
   clearCallback = callback;
-
-  try {
-    const success = globalShortcut.register(key, () => {
-      const mainWindow = getMainWindow();
-      if (mainWindow && mainWindow.isVisible()) {
-        if (clearCallback) {
-          clearCallback();
-        }
+  return registerHotkeyInternal('clear', () => {
+    const mainWindow = getMainWindow();
+    if (mainWindow && mainWindow.isVisible()) {
+      if (clearCallback) {
+        clearCallback();
       }
-    });
-
-    if (success) {
-      currentClearKey = key;
-      return true;
-    } else {
-      showHotkeyError(key, 'クリア');
-      return false;
     }
-  } catch (error) {
-    showHotkeyError(key, 'クリア');
-    return false;
-  }
+  }, 'クリア', clearKeyRef);
 }
 
 export function unregisterAllHotkeys(): void {
