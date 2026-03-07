@@ -107,6 +107,14 @@
 
     saveBtn.addEventListener('click', async () => {
       console.log('DraftDock Settings: Save button clicked', { toggle: pendingToggleKey, copy: pendingCopyKey, clear: pendingClearKey });
+
+      const keys = [pendingToggleKey, pendingCopyKey, pendingClearKey];
+      const uniqueKeys = new Set(keys.map(k => k.toLowerCase()));
+      if (uniqueKeys.size !== keys.length) {
+        alert('同じホットキーが複数の機能に割り当てられています。異なるキーを設定してください。');
+        return;
+      }
+
       try {
         const result = await window.draftdock.saveSettings({
           toggle: pendingToggleKey,

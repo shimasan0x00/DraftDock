@@ -1,4 +1,4 @@
-import { BrowserWindow, screen } from 'electron';
+import { BrowserWindow, screen, app } from 'electron';
 import * as path from 'path';
 import { store, Settings } from './store';
 
@@ -69,12 +69,13 @@ export function createMainWindow(): BrowserWindow {
 
   mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
 
-  // 開発時はDevToolsを開く（F12でも開ける）
-  mainWindow.webContents.on('before-input-event', (_event, input) => {
-    if (input.key === 'F12') {
-      mainWindow?.webContents.toggleDevTools();
-    }
-  });
+  if (!app.isPackaged) {
+    mainWindow.webContents.on('before-input-event', (_event, input) => {
+      if (input.key === 'F12') {
+        mainWindow?.webContents.toggleDevTools();
+      }
+    });
+  }
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
@@ -174,12 +175,13 @@ export function createSettingsWindow(): BrowserWindow {
   settingsWindow.setMenu(null);
   settingsWindow.loadFile(path.join(__dirname, '..', 'renderer', 'settings.html'));
 
-  // 開発時はDevToolsを開く（F12でも開ける）
-  settingsWindow.webContents.on('before-input-event', (_event, input) => {
-    if (input.key === 'F12') {
-      settingsWindow?.webContents.toggleDevTools();
-    }
-  });
+  if (!app.isPackaged) {
+    settingsWindow.webContents.on('before-input-event', (_event, input) => {
+      if (input.key === 'F12') {
+        settingsWindow?.webContents.toggleDevTools();
+      }
+    });
+  }
 
   settingsWindow.on('closed', () => {
     settingsWindow = null;

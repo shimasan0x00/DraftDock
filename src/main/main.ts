@@ -4,6 +4,7 @@ import { createTray, destroyTray } from './tray';
 import { registerToggleHotkey, registerCopyHotkey, registerClearHotkey, unregisterAllHotkeys, updateHotkeys } from './hotkey';
 import { store } from './store';
 import { createApplicationMenu } from './menu';
+import { validateDraftContent, validateCopyText, validateHotkeySettings } from './validators';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -57,8 +58,7 @@ function setupIpcHandlers(): void {
   });
 
   ipcMain.handle('save-draft', (_event, content: unknown) => {
-    if (typeof content !== 'string') return false;
-    if (content.length > 1_000_000) return false;
+    if (!validateDraftContent(content)) return false;
     store.setDraft(content);
     return true;
   });
@@ -69,8 +69,7 @@ function setupIpcHandlers(): void {
   });
 
   ipcMain.handle('copy-to-clipboard', (_event, text: unknown) => {
-    if (typeof text !== 'string') return false;
-    if (text.length === 0 || text.length > 1_000_000) return false;
+    if (!validateCopyText(text)) return false;
     clipboard.writeText(text);
     hideMainWindow();
     return true;
@@ -86,24 +85,11 @@ function setupIpcHandlers(): void {
   });
 
   ipcMain.handle('save-settings', (_event, settings: unknown) => {
-    if (
-      typeof settings !== 'object' || settings === null ||
-      typeof (settings as any).toggle !== 'string' ||
-      typeof (settings as any).copy !== 'string' ||
-      typeof (settings as any).clear !== 'string'
-    ) {
+    if (!validateHotkeySettings(settings)) {
       return { toggle: false, copy: false, clear: false };
     }
 
-    const { toggle, copy, clear } = settings as { toggle: string; copy: string; clear: string };
-
-    if (toggle.length > 50 || copy.length > 50 || clear.length > 50) {
-      return { toggle: false, copy: false, clear: false };
-    }
-
-    if (toggle.length === 0 || copy.length === 0 || clear.length === 0) {
-      return { toggle: false, copy: false, clear: false };
-    }
+    const { toggle, copy, clear } = settings;
 
     store.setSettings({
       hotkeys: { toggle, copy, clear },
