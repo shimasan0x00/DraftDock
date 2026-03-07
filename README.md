@@ -120,7 +120,8 @@ src/
     ├── index.html  # メインウィンドウ
     ├── index.ts
     ├── settings.html # 設定画面
-    └── settings.ts
+    ├── settings.ts
+    └── types.d.ts    # 型定義
 e2e/                # E2Eテスト（Playwright）
 assets/
 ├── fonts/          # Bizin Gothic（日本語対応等幅フォント）

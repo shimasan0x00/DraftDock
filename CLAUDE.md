@@ -5,7 +5,7 @@
 DraftDockは、AI/チャットツールの誤送信を防ぐための常駐型下書きアプリケーション。
 
 - **技術スタック**: TypeScript, Electron, HTML/CSS
-- **対応OS**: Windows（MVP）、macOS（将来）
+- **対応OS**: Windows / macOS
 - **仕様書**: `plan/spec.md`
 - **配布**: GitHub Releases（自動ビルド）
 
@@ -59,13 +59,13 @@ PRの作成は `/pr` コマンドで明示的に実行する。自動でPRを作
 
 ### spec.md変更時
 1. コミット時にリマインダーが表示される
-2. `spec-reviewer`の検証項目（F1-F8, D1-D6, U1-U8, AC1-AC8）の更新を検討
+2. `spec-reviewer`の検証項目（F1-F9, D1-D7, U1-U11, AC1-AC8）の更新を検討
 3. 必要に応じて `.claude/agents/spec-reviewer.md` を更新
 
 ### 検証項目ID
-- **F1-F8**: 機能要件（トレイ常駐、ホットキー、クリップボード等）
-- **D1-D6**: データ仕様（保存先、ファイル形式、デバウンス等）
-- **U1-U8**: UI仕様（ウィンドウサイズ、フォント、キーボード等）
+- **F1-F9**: 機能要件（トレイ常駐、ホットキー、クリップボード、クリアキー等）
+- **D1-D7**: データ仕様（保存先、ファイル形式、デバウンス、クリアキーデフォルト等）
+- **U1-U11**: UI仕様（ウィンドウサイズ、フォント、キーボード、メニューバー、設定画面等）
 - **AC1-AC8**: 受け入れ条件（MVP完了判定）
 
 ## Git Hooks保護
@@ -129,7 +129,8 @@ assets/
 ├── fonts/            # Bizin Gothic フォント
 ├── draft_pad.ico     # Windowsアイコン
 ├── draft_pad_16.png  # トレイアイコン
-└── draft_pad_256.png # ウィンドウアイコン
+├── draft_pad_256.png # ウィンドウアイコン
+└── draft_pad_512.png # macOSアイコン
 ```
 
 ## デフォルト設定値
@@ -168,7 +169,7 @@ assets/
 mainブランチへのpush時に自動でリリースが作成される。
 
 1. バージョン判定（既存タグがあればパッチバンプ）
-2. ビルド & パッケージング
-3. タグ作成 & GitHub Release公開
+2. Windows / macOS マルチプラットフォームビルド（並列）
+3. タグ作成 & GitHub Release公開（両OS成果物を配布）
 
 詳細: `.github/workflows/release.yml`
