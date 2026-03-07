@@ -5,7 +5,7 @@ AI/チャットツールの誤送信を防ぐための常駐型下書きアプ�
 ## 対応OS
 
 - Windows (x64)
-- macOS (Intel x64)
+- macOS (Intel / Apple Silicon)
 
 ## ダウンロード
 
@@ -14,7 +14,7 @@ AI/チャットツールの誤送信を防ぐための常駐型下書きアプ�
 | OS | ファイル |
 |----|---------|
 | Windows | `.exe`（NSISインストーラー） |
-| macOS (Intel) | `.dmg` または `.zip` |
+| macOS | `.dmg` または `.zip` |
 
 ## 概要
 
@@ -132,12 +132,12 @@ assets/
 
 ```
 # Windows
-%APPDATA%\draftdock\
+%APPDATA%\DraftDock\
 ├── settings.json   # 設定（ホットキー、ウィンドウ位置）
 └── draft.json      # 下書き
 
 # macOS
-~/Library/Application Support/draftdock/
+~/Library/Application Support/DraftDock/
 ├── settings.json   # 設定（ホットキー、ウィンドウ位置）
 └── draft.json      # 下書き
 ```

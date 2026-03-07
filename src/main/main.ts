@@ -61,8 +61,12 @@ function setupIpcHandlers(): void {
 
   ipcMain.handle('save-draft', (_event, content: unknown) => {
     if (!validateDraftContent(content)) return false;
-    store.setDraft(content);
-    return true;
+    try {
+      store.setDraft(content);
+      return true;
+    } catch {
+      return false;
+    }
   });
 
   ipcMain.handle('clear-draft', () => {

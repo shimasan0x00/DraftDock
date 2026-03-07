@@ -17,7 +17,11 @@
 
   async function saveDraft(): Promise<void> {
     try {
-      await window.draftdock.saveDraft(textarea.value);
+      const result = await window.draftdock.saveDraft(textarea.value);
+      if (!result) {
+        textarea.style.borderColor = '#f44336';
+        setTimeout(() => { textarea.style.borderColor = ''; }, 2000);
+      }
     } catch (error) {
       console.error('Failed to save draft:', error);
     }
@@ -96,8 +100,6 @@
   }
 
   function init(): void {
-    console.log('DraftDock: init started');
-
     textarea = document.getElementById('draft-textarea') as HTMLTextAreaElement;
     clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
     copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
@@ -111,8 +113,6 @@
       console.error('DraftDock: window.draftdock is not defined. Preload script may not be loaded.');
       return;
     }
-
-    console.log('DraftDock: Setting up event listeners');
 
     textarea.addEventListener('input', () => {
       if (!isComposing) {
@@ -150,7 +150,6 @@
     });
 
     loadDraft().then(() => {
-      console.log('DraftDock: Draft loaded');
       focusTextarea();
       updateButtonLabels();
     }).catch((error) => {
