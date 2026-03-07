@@ -317,7 +317,7 @@ describe('IPC Handlers', () => {
       expect(mockStore.setSettings).toHaveBeenLastCalledWith({ hotkeys: oldSettings.hotkeys });
     });
 
-    it('部分的なホットキー登録失敗時はロールバックしない', () => {
+    it('部分的なホットキー登録失敗時は失敗したキーのみロールバックする', () => {
       const oldSettings = {
         hotkeys: { toggle: 'Ctrl+Shift+D', copy: 'Ctrl+Enter', clear: 'Ctrl+Shift+L' },
         window: { x: null, y: null, width: 800, height: 450 },
@@ -329,7 +329,14 @@ describe('IPC Handlers', () => {
         toggle: 'Ctrl+Shift+X', copy: 'Ctrl+Shift+Y', clear: 'Ctrl+Shift+Z',
       });
       expect(result).toEqual({ toggle: true, copy: false, clear: false });
-      expect(mockStore.setSettings).toHaveBeenCalledTimes(1);
+      expect(mockStore.setSettings).toHaveBeenCalledTimes(2);
+      expect(mockStore.setSettings).toHaveBeenLastCalledWith({
+        hotkeys: {
+          toggle: 'Ctrl+Shift+X',
+          copy: oldSettings.hotkeys.copy,
+          clear: oldSettings.hotkeys.clear,
+        },
+      });
     });
 
     it('store例外時に全falseを返しエラーログを出力する', () => {

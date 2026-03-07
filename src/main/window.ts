@@ -180,7 +180,7 @@ export function getMainWindow(): BrowserWindow | null {
 
 export function destroyMainWindow(): void {
   if (mainWindow) {
-    mainWindow.removeAllListeners('close');
+    mainWindow.removeAllListeners();
     mainWindow.close();
     mainWindow = null;
   }
