@@ -92,16 +92,15 @@ test.describe('クリップボード・ボタン操作', () => {
     const copyBtn = mainWindow.locator('#copy-btn');
     await copyBtn.click();
 
-    // 少し待ってからウィンドウが非表示になっていることを確認
-    await mainWindow.waitForTimeout(200);
-
-    const isVisibleAfter = await electronApp.evaluate(({ BrowserWindow }) => {
-      const win = BrowserWindow.getAllWindows().find(w =>
-        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
-      );
-      return win?.isVisible() ?? false;
-    });
-    expect(isVisibleAfter).toBe(false);
+    // ウィンドウが非表示になるまでポーリングで確認
+    await expect.poll(async () => {
+      return await electronApp.evaluate(({ BrowserWindow }) => {
+        const win = BrowserWindow.getAllWindows().find(w =>
+          !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+        );
+        return win?.isVisible() ?? false;
+      });
+    }, { timeout: 5000 }).toBe(false);
   });
 
   test('CB-05: 空テキスト時はコピーボタンでウィンドウ非表示にならない', async ({ electronApp, mainWindow }) => {
@@ -124,16 +123,14 @@ test.describe('クリップボード・ボタン操作', () => {
     const copyBtn = mainWindow.locator('#copy-btn');
     await copyBtn.click();
 
-    // 少し待つ
-    await mainWindow.waitForTimeout(200);
-
-    // ウィンドウが表示されたままであることを確認
-    const isVisible = await electronApp.evaluate(({ BrowserWindow }) => {
-      const win = BrowserWindow.getAllWindows().find(w =>
-        !w.isDestroyed() && w.webContents.getURL().includes('index.html')
-      );
-      return win?.isVisible() ?? false;
-    });
-    expect(isVisible).toBe(true);
+    // ウィンドウが表示されたままであることをポーリングで確認
+    await expect.poll(async () => {
+      return await electronApp.evaluate(({ BrowserWindow }) => {
+        const win = BrowserWindow.getAllWindows().find(w =>
+          !w.isDestroyed() && w.webContents.getURL().includes('index.html')
+        );
+        return win?.isVisible() ?? false;
+      });
+    }, { timeout: 5000 }).toBe(true);
   });
 });

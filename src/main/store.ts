@@ -40,7 +40,7 @@ const DEFAULT_SETTINGS: InternalSettings = {
 
 const DEFAULT_DRAFT: Draft = {
   content: '',
-  updatedAt: new Date().toISOString(),
+  updatedAt: '',
 };
 
 class AppStore {
@@ -64,17 +64,18 @@ class AppStore {
   }
 
   getSettings(): Settings {
+    const data = this.settingsStore.store;
     return {
       hotkeys: {
-        toggle: this.settingsStore.get('hotkeys.toggle'),
-        copy: this.settingsStore.get('hotkeys.copy'),
-        clear: this.settingsStore.get('hotkeys.clear'),
+        toggle: data.hotkeys.toggle,
+        copy: data.hotkeys.copy,
+        clear: data.hotkeys.clear,
       },
       window: {
-        x: this.settingsStore.get('window.x'),
-        y: this.settingsStore.get('window.y'),
-        width: this.settingsStore.get('window.width'),
-        height: this.settingsStore.get('window.height'),
+        x: data.window.x,
+        y: data.window.y,
+        width: data.window.width,
+        height: data.window.height,
       },
     };
   }
@@ -108,9 +109,10 @@ class AppStore {
   }
 
   getDraft(): Draft {
+    const data = this.draftStore.store;
     return {
-      content: this.draftStore.get('content'),
-      updatedAt: this.draftStore.get('updatedAt'),
+      content: data.content,
+      updatedAt: data.updatedAt,
     };
   }
 
