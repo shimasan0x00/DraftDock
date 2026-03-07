@@ -20,7 +20,11 @@ export interface Draft {
   updatedAt: string;
 }
 
-const DEFAULT_SETTINGS: Settings = {
+interface InternalSettings extends Settings {
+  _saveFailed?: boolean;
+}
+
+const DEFAULT_SETTINGS: InternalSettings = {
   hotkeys: {
     toggle: 'Ctrl+Shift+D',
     copy: 'Ctrl+Enter',
@@ -40,13 +44,13 @@ const DEFAULT_DRAFT: Draft = {
 };
 
 class AppStore {
-  private settingsStore: Store<Settings>;
+  private settingsStore: Store<InternalSettings>;
   private draftStore: Store<Draft>;
 
   constructor() {
     const userDataPath = app.getPath('userData');
 
-    this.settingsStore = new Store<Settings>({
+    this.settingsStore = new Store<InternalSettings>({
       name: 'settings',
       cwd: userDataPath,
       defaults: DEFAULT_SETTINGS,
@@ -118,6 +122,18 @@ class AppStore {
   clearDraft(): void {
     this.draftStore.set('content', '');
     this.draftStore.set('updatedAt', new Date().toISOString());
+  }
+
+  setSaveFailedFlag(failed: boolean): void {
+    this.settingsStore.set('_saveFailed', failed);
+  }
+
+  getSaveFailedFlag(): boolean {
+    return this.settingsStore.get('_saveFailed', false) === true;
+  }
+
+  clearSaveFailedFlag(): void {
+    this.settingsStore.set('_saveFailed', false);
   }
 
   resetSettings(): void {

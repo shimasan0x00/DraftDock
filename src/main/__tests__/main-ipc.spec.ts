@@ -16,6 +16,9 @@ const {
     clearDraft: vi.fn(),
     getSettings: vi.fn(),
     setSettings: vi.fn(),
+    setSaveFailedFlag: vi.fn(),
+    getSaveFailedFlag: vi.fn().mockReturnValue(false),
+    clearSaveFailedFlag: vi.fn(),
   };
   const mockClipboard = { writeText: vi.fn() };
   const mockHandlers = new Map<string, (...args: unknown[]) => unknown>();
@@ -123,6 +126,17 @@ describe('IPC Handlers', () => {
       expect(result).toEqual(draft);
       expect(mockStore.getDraft).toHaveBeenCalled();
     });
+
+    it('store例外時にデフォルトdraftを返す', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      mockStore.getDraft.mockImplementationOnce(() => { throw new Error('read error'); });
+
+      const result = getHandler('get-draft')(null) as { content: string; updatedAt: string };
+      expect(result.content).toBe('');
+      expect(result.updatedAt).toBeDefined();
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to get draft:', expect.any(Error));
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('save-draft', () => {
@@ -154,13 +168,29 @@ describe('IPC Handlers', () => {
       expect(result).toBe(false);
     });
 
-    it('store例外時にfalseを返しエラーログを出力する', () => {
+    it('1回目失敗→リトライ成功時にtrueを返す', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockStore.setDraft.mockImplementationOnce(() => { throw new Error('disk full'); });
 
       const result = getHandler('save-draft')(null, 'test');
+      expect(result).toBe(true);
+      expect(mockStore.setDraft).toHaveBeenCalledTimes(2);
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to save draft (attempt 1):', expect.any(Error));
+      consoleSpy.mockRestore();
+    });
+
+    it('2回連続失敗時にfalseを返しsaveFailedFlagを設定する', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      mockStore.setDraft
+        .mockImplementationOnce(() => { throw new Error('disk full'); })
+        .mockImplementationOnce(() => { throw new Error('disk full'); });
+
+      const result = getHandler('save-draft')(null, 'test');
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to save draft:', expect.any(Error));
+      expect(mockStore.setDraft).toHaveBeenCalledTimes(2);
+      expect(mockStore.setSaveFailedFlag).toHaveBeenCalledWith(true);
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to save draft (attempt 1):', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to save draft (attempt 2, final):', expect.any(Error));
       consoleSpy.mockRestore();
     });
   });
@@ -205,6 +235,17 @@ describe('IPC Handlers', () => {
     it('バリデーション失敗時にfalseを返す（null）', () => {
       const result = getHandler('copy-to-clipboard')(null, null);
       expect(result).toBe(false);
+    });
+
+    it('clipboard例外時にfalseを返しhideMainWindowを呼ばない', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      mockClipboard.writeText.mockImplementationOnce(() => { throw new Error('clipboard error'); });
+
+      const result = getHandler('copy-to-clipboard')(null, 'test text');
+      expect(result).toBe(false);
+      expect(mockHideMainWindow).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to copy to clipboard:', expect.any(Error));
+      consoleSpy.mockRestore();
     });
   });
 

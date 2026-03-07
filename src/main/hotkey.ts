@@ -80,32 +80,30 @@ const toggleKeyRef = createKeyRef(() => currentToggleKey, (v) => { currentToggle
 const copyKeyRef = createKeyRef(() => currentCopyKey, (v) => { currentCopyKey = v; });
 const clearKeyRef = createKeyRef(() => currentClearKey, (v) => { currentClearKey = v; });
 
+function createWindowVisibleCallback(getCallback: () => HotkeyCallback | null): () => void {
+  return () => {
+    const mainWindow = getMainWindow();
+    if (mainWindow && mainWindow.isVisible()) {
+      const callback = getCallback();
+      if (callback) {
+        callback();
+      }
+    }
+  };
+}
+
 export function registerToggleHotkey(): boolean {
   return registerHotkeyInternal('toggle', () => { toggleMainWindow(); }, '起動', toggleKeyRef);
 }
 
 export function registerCopyHotkey(callback: HotkeyCallback): boolean {
   copyCallback = callback;
-  return registerHotkeyInternal('copy', () => {
-    const mainWindow = getMainWindow();
-    if (mainWindow && mainWindow.isVisible()) {
-      if (copyCallback) {
-        copyCallback();
-      }
-    }
-  }, 'コピー', copyKeyRef);
+  return registerHotkeyInternal('copy', createWindowVisibleCallback(() => copyCallback), 'コピー', copyKeyRef);
 }
 
 export function registerClearHotkey(callback: HotkeyCallback): boolean {
   clearCallback = callback;
-  return registerHotkeyInternal('clear', () => {
-    const mainWindow = getMainWindow();
-    if (mainWindow && mainWindow.isVisible()) {
-      if (clearCallback) {
-        clearCallback();
-      }
-    }
-  }, 'クリア', clearKeyRef);
+  return registerHotkeyInternal('clear', createWindowVisibleCallback(() => clearCallback), 'クリア', clearKeyRef);
 }
 
 export function unregisterAllHotkeys(): void {
