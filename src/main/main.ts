@@ -64,14 +64,20 @@ function setupIpcHandlers(): void {
     try {
       store.setDraft(content);
       return true;
-    } catch {
+    } catch (error) {
+      console.error('Failed to save draft:', error);
       return false;
     }
   });
 
   ipcMain.handle('clear-draft', () => {
-    store.clearDraft();
-    return true;
+    try {
+      store.clearDraft();
+      return true;
+    } catch (error) {
+      console.error('Failed to clear draft:', error);
+      return false;
+    }
   });
 
   ipcMain.handle('copy-to-clipboard', (_event, text: unknown) => {
@@ -97,22 +103,27 @@ function setupIpcHandlers(): void {
 
     const { toggle, copy, clear } = settings;
 
-    store.setSettings({
-      hotkeys: { toggle, copy, clear },
-    });
+    try {
+      store.setSettings({
+        hotkeys: { toggle, copy, clear },
+      });
 
-    const result = updateHotkeys(
-      () => {
-        sendToMainWindow('copy-requested');
-      },
-      () => {
-        sendToMainWindow('clear-requested');
-      }
-    );
+      const result = updateHotkeys(
+        () => {
+          sendToMainWindow('copy-requested');
+        },
+        () => {
+          sendToMainWindow('clear-requested');
+        }
+      );
 
-    createApplicationMenu();
-    closeSettingsWindow();
-    return result;
+      createApplicationMenu();
+      closeSettingsWindow();
+      return result;
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      return { toggle: false, copy: false, clear: false };
+    }
   });
 
   ipcMain.handle('close-settings', () => {

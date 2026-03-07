@@ -62,7 +62,9 @@ test.describe('永続化', () => {
     await app2.close();
   });
 
-  // テスト環境でsetPosition()による位置変更がmovedイベントを発火しない場合がある
+  // Electron制限: テスト環境でsetPosition()がmovedイベントを発火しないため、
+  // ウィンドウ位置がstoreに保存されず復元テストが成立しない。
+  // 手動テストでは動作確認済み。CI環境(Windows/macOS)でも同様の制限あり。
   test.skip('PS-02: ウィンドウ位置が再起動後も復元', async ({ testUserDataDir }) => {
     const appPath = path.join(__dirname, '..', 'dist', 'main', 'main.js');
     const targetX = 150;

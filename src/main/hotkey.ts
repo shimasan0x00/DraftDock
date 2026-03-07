@@ -66,9 +66,19 @@ function registerHotkeyInternal(
   }
 }
 
-const toggleKeyRef = { get value() { return currentToggleKey; }, set value(v) { currentToggleKey = v; } };
-const copyKeyRef = { get value() { return currentCopyKey; }, set value(v) { currentCopyKey = v; } };
-const clearKeyRef = { get value() { return currentClearKey; }, set value(v) { currentClearKey = v; } };
+function createKeyRef(
+  getter: () => string | null,
+  setter: (v: string | null) => void
+): { value: string | null } {
+  return {
+    get value() { return getter(); },
+    set value(v: string | null) { setter(v); },
+  };
+}
+
+const toggleKeyRef = createKeyRef(() => currentToggleKey, (v) => { currentToggleKey = v; });
+const copyKeyRef = createKeyRef(() => currentCopyKey, (v) => { currentCopyKey = v; });
+const clearKeyRef = createKeyRef(() => currentClearKey, (v) => { currentClearKey = v; });
 
 export function registerToggleHotkey(): boolean {
   return registerHotkeyInternal('toggle', () => { toggleMainWindow(); }, '起動', toggleKeyRef);

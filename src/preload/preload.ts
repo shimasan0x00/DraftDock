@@ -12,6 +12,7 @@ const api: DraftDockAPI = {
   saveSettings: (settings: { toggle: string; copy: string; clear: string }) => ipcRenderer.invoke('save-settings', settings),
   closeSettings: () => ipcRenderer.invoke('close-settings'),
   openSettings: () => ipcRenderer.invoke('open-settings'),
+  // 二重登録防止: removeAllListeners()で既存リスナーを解除してから登録
   onWindowShown: (callback: () => void) => {
     ipcRenderer.removeAllListeners('window-shown');
     ipcRenderer.on('window-shown', callback);
