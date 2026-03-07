@@ -38,9 +38,9 @@ function copyDir(src, dest) {
   }
 }
 
-// Copy HTML files
-const htmlFiles = ['index.html', 'settings.html'];
-for (const file of htmlFiles) {
+// Copy HTML and CSS files
+const rendererFiles = ['index.html', 'settings.html', 'index.css', 'settings.css'];
+for (const file of rendererFiles) {
   const src = path.join(srcRenderer, file);
   const dest = path.join(distRenderer, file);
   if (fs.existsSync(src)) {
