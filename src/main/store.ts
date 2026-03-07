@@ -62,15 +62,15 @@ class AppStore {
   getSettings(): Settings {
     return {
       hotkeys: {
-        toggle: this.settingsStore.get('hotkeys.toggle', DEFAULT_SETTINGS.hotkeys.toggle),
-        copy: this.settingsStore.get('hotkeys.copy', DEFAULT_SETTINGS.hotkeys.copy),
-        clear: this.settingsStore.get('hotkeys.clear', DEFAULT_SETTINGS.hotkeys.clear),
+        toggle: this.settingsStore.get('hotkeys.toggle'),
+        copy: this.settingsStore.get('hotkeys.copy'),
+        clear: this.settingsStore.get('hotkeys.clear'),
       },
       window: {
-        x: this.settingsStore.get('window.x', DEFAULT_SETTINGS.window.x),
-        y: this.settingsStore.get('window.y', DEFAULT_SETTINGS.window.y),
-        width: this.settingsStore.get('window.width', DEFAULT_SETTINGS.window.width),
-        height: this.settingsStore.get('window.height', DEFAULT_SETTINGS.window.height),
+        x: this.settingsStore.get('window.x'),
+        y: this.settingsStore.get('window.y'),
+        width: this.settingsStore.get('window.width'),
+        height: this.settingsStore.get('window.height'),
       },
     };
   }
@@ -105,8 +105,8 @@ class AppStore {
 
   getDraft(): Draft {
     return {
-      content: this.draftStore.get('content', DEFAULT_DRAFT.content),
-      updatedAt: this.draftStore.get('updatedAt', DEFAULT_DRAFT.updatedAt),
+      content: this.draftStore.get('content'),
+      updatedAt: this.draftStore.get('updatedAt'),
     };
   }
 

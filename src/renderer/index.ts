@@ -34,9 +34,9 @@
   }
 
   async function clearDraft(): Promise<void> {
-    textarea.value = '';
     try {
       await window.draftdock.clearDraft();
+      textarea.value = '';
     } catch (error) {
       console.error('Failed to clear draft:', error);
     }
@@ -67,6 +67,10 @@
   function handleGlobalKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       event.preventDefault();
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        saveTimeout = null;
+      }
       saveDraft();
       if (window.draftdock) {
         window.draftdock.hideWindow();

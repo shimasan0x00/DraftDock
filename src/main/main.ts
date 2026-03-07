@@ -1,5 +1,5 @@
 import { app, ipcMain, clipboard, BrowserWindow } from 'electron';
-import { createMainWindow, showMainWindow, hideMainWindow, getMainWindow, destroyMainWindow, createSettingsWindow, closeSettingsWindow } from './window';
+import { createMainWindow, showMainWindow, hideMainWindow, getMainWindow, destroyMainWindow, createSettingsWindow, closeSettingsWindow, flushPendingSave } from './window';
 import { createTray, destroyTray } from './tray';
 import { registerToggleHotkey, registerCopyHotkey, registerClearHotkey, unregisterAllHotkeys, updateHotkeys } from './hotkey';
 import { store } from './store';
@@ -43,6 +43,7 @@ if (!gotTheLock) {
   });
 
   app.on('before-quit', () => {
+    flushPendingSave();
     unregisterAllHotkeys();
     destroyTray();
     destroyMainWindow();

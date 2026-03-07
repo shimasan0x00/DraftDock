@@ -9,6 +9,7 @@ let currentCopyKey: string | null = null;
 let currentClearKey: string | null = null;
 let copyCallback: HotkeyCallback | null = null;
 let clearCallback: HotkeyCallback | null = null;
+let isUpdating = false;
 
 export function normalizeAccelerator(key: string): string {
   return key
@@ -115,10 +116,18 @@ export function unregisterAllHotkeys(): void {
 }
 
 export function updateHotkeys(copyCallbackFn: HotkeyCallback, clearCallbackFn: HotkeyCallback): { toggle: boolean; copy: boolean; clear: boolean } {
-  const toggleSuccess = registerToggleHotkey();
-  const copySuccess = registerCopyHotkey(copyCallbackFn);
-  const clearSuccess = registerClearHotkey(clearCallbackFn);
-  return { toggle: toggleSuccess, copy: copySuccess, clear: clearSuccess };
+  if (isUpdating) {
+    return { toggle: false, copy: false, clear: false };
+  }
+  isUpdating = true;
+  try {
+    const toggleSuccess = registerToggleHotkey();
+    const copySuccess = registerCopyHotkey(copyCallbackFn);
+    const clearSuccess = registerClearHotkey(clearCallbackFn);
+    return { toggle: toggleSuccess, copy: copySuccess, clear: clearSuccess };
+  } finally {
+    isUpdating = false;
+  }
 }
 
 export function getCurrentHotkeys(): { toggle: string | null; copy: string | null; clear: string | null } {

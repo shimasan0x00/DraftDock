@@ -14,11 +14,15 @@ const DEFAULT_HEIGHT = 450;
 const SETTINGS_WIDTH = 450;
 const SETTINGS_HEIGHT = 450;
 
-function isPositionOnScreen(x: number, y: number): boolean {
+const MIN_VISIBLE_SIZE = 100;
+
+function isPositionOnScreen(x: number, y: number, winWidth: number, winHeight: number): boolean {
   const displays = screen.getAllDisplays();
   for (const display of displays) {
     const { x: dx, y: dy, width, height } = display.bounds;
-    if (x >= dx && x < dx + width && y >= dy && y < dy + height) {
+    const overlapX = Math.max(0, Math.min(x + winWidth, dx + width) - Math.max(x, dx));
+    const overlapY = Math.max(0, Math.min(y + winHeight, dy + height) - Math.max(y, dy));
+    if (overlapX >= MIN_VISIBLE_SIZE && overlapY >= MIN_VISIBLE_SIZE) {
       return true;
     }
   }
@@ -45,7 +49,7 @@ export function createMainWindow(): BrowserWindow {
   width = width || DEFAULT_WIDTH;
   height = height || DEFAULT_HEIGHT;
 
-  if (x === null || y === null || !isPositionOnScreen(x, y)) {
+  if (x === null || y === null || !isPositionOnScreen(x, y, width, height)) {
     const center = getCenterPosition(width, height);
     x = center.x;
     y = center.y;
@@ -104,6 +108,14 @@ function debouncedSaveWindowPosition(): void {
     saveWindowPosition();
     savePositionTimeout = null;
   }, SAVE_POSITION_DEBOUNCE_MS);
+}
+
+export function flushPendingSave(): void {
+  if (savePositionTimeout) {
+    clearTimeout(savePositionTimeout);
+    savePositionTimeout = null;
+    saveWindowPosition();
+  }
 }
 
 function saveWindowPosition(): void {
