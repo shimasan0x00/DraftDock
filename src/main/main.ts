@@ -1,4 +1,4 @@
-import { app, ipcMain, clipboard, BrowserWindow } from 'electron';
+import { app, ipcMain, clipboard, BrowserWindow, Notification } from 'electron';
 import { createMainWindow, showMainWindow, hideMainWindow, getMainWindow, destroyMainWindow, createSettingsWindow, closeSettingsWindow, flushPendingSave } from './window';
 import { createTray, destroyTray } from './tray';
 import { registerToggleHotkey, registerCopyHotkey, registerClearHotkey, unregisterAllHotkeys, updateHotkeys } from './hotkey';
@@ -36,6 +36,7 @@ if (!gotTheLock) {
     });
 
     setupIpcHandlers();
+    checkSaveFailedFlag();
   });
 
   app.on('window-all-closed', (event: Event) => {
@@ -54,9 +55,28 @@ if (!gotTheLock) {
   });
 }
 
+function checkSaveFailedFlag(): void {
+  try {
+    if (store.getSaveFailedFlag()) {
+      new Notification({
+        title: 'DraftDock',
+        body: '前回の下書き保存に失敗しました。内容が失われている可能性があります。',
+      }).show();
+      store.clearSaveFailedFlag();
+    }
+  } catch (error) {
+    console.error('Failed to check save-failed flag:', error);
+  }
+}
+
 function setupIpcHandlers(): void {
   ipcMain.handle('get-draft', () => {
-    return store.getDraft();
+    try {
+      return store.getDraft();
+    } catch (error) {
+      console.error('Failed to get draft:', error);
+      return { content: '', updatedAt: new Date().toISOString() };
+    }
   });
 
   ipcMain.handle('save-draft', (_event, content: unknown) => {
@@ -64,8 +84,19 @@ function setupIpcHandlers(): void {
     try {
       store.setDraft(content);
       return true;
-    } catch (error) {
-      console.error('Failed to save draft:', error);
+    } catch (firstError) {
+      console.error('Failed to save draft (attempt 1):', firstError);
+    }
+    try {
+      store.setDraft(content);
+      return true;
+    } catch (retryError) {
+      console.error('Failed to save draft (attempt 2, final):', retryError);
+      try {
+        store.setSaveFailedFlag(true);
+      } catch (flagError) {
+        console.error('Failed to set save-failed flag:', flagError);
+      }
       return false;
     }
   });
@@ -82,9 +113,14 @@ function setupIpcHandlers(): void {
 
   ipcMain.handle('copy-to-clipboard', (_event, text: unknown) => {
     if (!validateCopyText(text)) return false;
-    clipboard.writeText(text);
-    hideMainWindow();
-    return true;
+    try {
+      clipboard.writeText(text);
+      hideMainWindow();
+      return true;
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      return false;
+    }
   });
 
   ipcMain.handle('hide-window', () => {
