@@ -63,6 +63,12 @@ html, body {
   color: #6b6b6b;
 }
 
+.status-message {
+  color: #f44336;
+  font-size: 12px;
+  padding: 4px 0;
+}
+
 .button-container {
   display: flex;
   justify-content: flex-end;

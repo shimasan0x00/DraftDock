@@ -166,6 +166,29 @@ describe('registerToggleHotkey', () => {
     expect(result).toBe(false);
     expect(mockNotificationShow).toHaveBeenCalled();
   });
+
+  it('新キー登録失敗時に旧キーが維持される', () => {
+    // 旧キーを登録
+    mockGlobalShortcut.register.mockReturnValue(true);
+    registerToggleHotkey();
+    expect(getCurrentHotkeys().toggle).toBe('CommandOrControl+Shift+D');
+    vi.clearAllMocks();
+
+    // 設定を別のキーに変更
+    mockStoreGetSettings.mockReturnValueOnce({
+      hotkeys: { toggle: 'Ctrl+Shift+X', copy: 'Ctrl+Enter', clear: 'Ctrl+Shift+L' },
+      window: { x: null, y: null, width: 800, height: 450 },
+    });
+
+    // 新キー登録を失敗させる
+    mockGlobalShortcut.register.mockReturnValue(false);
+    const result = registerToggleHotkey();
+
+    expect(result).toBe(false);
+    // 旧キーはunregisterされず維持される
+    expect(mockGlobalShortcut.unregister).not.toHaveBeenCalled();
+    expect(getCurrentHotkeys().toggle).toBe('CommandOrControl+Shift+D');
+  });
 });
 
 describe('registerCopyHotkey', () => {

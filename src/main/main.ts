@@ -39,8 +39,8 @@ if (!gotTheLock) {
     checkSaveFailedFlag();
   });
 
-  app.on('window-all-closed', (event: Event) => {
-    event.preventDefault();
+  app.on('window-all-closed', () => {
+    // トレイ常駐のため、アプリを終了しない
   });
 
   app.on('before-quit', () => {
@@ -155,8 +155,15 @@ function setupIpcHandlers(): void {
         }
       );
 
-      if (!result.toggle && !result.copy && !result.clear) {
-        store.setSettings({ hotkeys: oldSettings.hotkeys });
+      const hasFailure = !result.toggle || !result.copy || !result.clear;
+      if (hasFailure) {
+        store.setSettings({
+          hotkeys: {
+            toggle: result.toggle ? toggle : oldSettings.hotkeys.toggle,
+            copy: result.copy ? copy : oldSettings.hotkeys.copy,
+            clear: result.clear ? clear : oldSettings.hotkeys.clear,
+          },
+        });
       }
 
       createApplicationMenu();

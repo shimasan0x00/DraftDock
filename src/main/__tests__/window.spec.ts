@@ -235,11 +235,11 @@ describe('window', () => {
   });
 
   describe('destroyMainWindow', () => {
-    it('リスナー削除後にclose・null化する', () => {
+    it('全リスナー削除後にclose・null化する', () => {
       windowModule.createMainWindow();
       windowModule.destroyMainWindow();
 
-      expect(mockBrowserWindowInstance.removeAllListeners).toHaveBeenCalledWith('close');
+      expect(mockBrowserWindowInstance.removeAllListeners).toHaveBeenCalledWith();
       expect(mockBrowserWindowInstance.close).toHaveBeenCalled();
       expect(windowModule.getMainWindow()).toBeNull();
     });

@@ -61,6 +61,16 @@ label {
   margin-top: 4px;
 }
 
+.error-message {
+  background-color: #3c1f1f;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  color: #f44336;
+  font-size: 12px;
+  padding: 8px 12px;
+  white-space: pre-line;
+}
+
 .button-container {
   display: flex;
   justify-content: flex-end;

@@ -45,15 +45,20 @@ function registerHotkeyInternal(
 ): boolean {
   const settings = store.getSettings();
   const key = normalizeAccelerator(settings.hotkeys[settingsKey]);
+  const oldKey = currentKeyRef.value;
 
-  if (currentKeyRef.value) {
-    globalShortcut.unregister(currentKeyRef.value);
+  // 同じキーへの再登録は先にunregisterが必要
+  if (oldKey && oldKey === key) {
+    globalShortcut.unregister(oldKey);
     currentKeyRef.value = null;
   }
 
   try {
     const success = globalShortcut.register(key, callback);
     if (success) {
+      if (oldKey && oldKey !== key) {
+        globalShortcut.unregister(oldKey);
+      }
       currentKeyRef.value = key;
       return true;
     } else {

@@ -2,7 +2,9 @@
   let textarea: HTMLTextAreaElement;
   let clearBtn: HTMLButtonElement;
   let copyBtn: HTMLButtonElement;
+  let statusMessage: HTMLDivElement;
   let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+  let statusTimeout: ReturnType<typeof setTimeout> | null = null;
   let isComposing = false;
   const DEBOUNCE_MS = 500;
 
@@ -15,12 +17,23 @@
     }
   }
 
+  function showStatus(message: string, durationMs: number): void {
+    statusMessage.textContent = message;
+    statusMessage.hidden = false;
+    textarea.style.borderColor = '#f44336';
+    if (statusTimeout) clearTimeout(statusTimeout);
+    statusTimeout = setTimeout(() => {
+      statusMessage.hidden = true;
+      textarea.style.borderColor = '';
+      statusTimeout = null;
+    }, durationMs);
+  }
+
   async function saveDraft(): Promise<void> {
     try {
       const result = await window.draftdock.saveDraft(textarea.value);
       if (!result) {
-        textarea.style.borderColor = '#f44336';
-        setTimeout(() => { textarea.style.borderColor = ''; }, 2000);
+        showStatus('保存に失敗しました', 3000);
       }
     } catch (error) {
       console.error('Failed to save draft:', error);
@@ -103,8 +116,9 @@
     textarea = document.getElementById('draft-textarea') as HTMLTextAreaElement;
     clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
     copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
+    statusMessage = document.getElementById('status-message') as HTMLDivElement;
 
-    if (!textarea || !clearBtn || !copyBtn) {
+    if (!textarea || !clearBtn || !copyBtn || !statusMessage) {
       console.error('DraftDock: Required DOM elements not found');
       return;
     }

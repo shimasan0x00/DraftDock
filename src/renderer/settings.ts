@@ -4,6 +4,7 @@
   let clearInput: HTMLInputElement;
   let saveBtn: HTMLButtonElement;
   let cancelBtn: HTMLButtonElement;
+  let errorMessage: HTMLDivElement;
 
   let pendingToggleKey = '';
   let pendingCopyKey = '';
@@ -63,14 +64,20 @@
     }
   }
 
+  function showError(message: string): void {
+    errorMessage.textContent = message;
+    errorMessage.hidden = false;
+  }
+
   function init(): void {
     toggleInput = document.getElementById('toggle-hotkey') as HTMLInputElement;
     copyInput = document.getElementById('copy-hotkey') as HTMLInputElement;
     clearInput = document.getElementById('clear-hotkey') as HTMLInputElement;
     saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
     cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement;
+    errorMessage = document.getElementById('error-message') as HTMLDivElement;
 
-    if (!toggleInput || !copyInput || !clearInput || !saveBtn || !cancelBtn) {
+    if (!toggleInput || !copyInput || !clearInput || !saveBtn || !cancelBtn || !errorMessage) {
       console.error('DraftDock Settings: Required DOM elements not found');
       return;
     }
@@ -99,10 +106,12 @@
     });
 
     saveBtn.addEventListener('click', async () => {
+      errorMessage.hidden = true;
+
       const keys = [pendingToggleKey, pendingCopyKey, pendingClearKey];
       const uniqueKeys = new Set(keys.map(k => k.toLowerCase()));
       if (uniqueKeys.size !== keys.length) {
-        alert('同じホットキーが複数の機能に割り当てられています。異なるキーを設定してください。');
+        showError('同じホットキーが複数の機能に割り当てられています。異なるキーを設定してください。');
         return;
       }
 
@@ -117,7 +126,7 @@
         if (!result.copy) failedKeys.push(`コピーキー (${pendingCopyKey})`);
         if (!result.clear) failedKeys.push(`クリアキー (${pendingClearKey})`);
         if (failedKeys.length > 0) {
-          alert(`以下のホットキーの登録に失敗しました:\n${failedKeys.join('\n')}\n\n他のアプリケーションで使用されている可能性があります。`);
+          showError(`以下のホットキーの登録に失敗しました:\n${failedKeys.join('\n')}\n\n他のアプリケーションで使用されている可能性があります。`);
         }
       } catch (error) {
         console.error('DraftDock Settings: Failed to save settings:', error);
