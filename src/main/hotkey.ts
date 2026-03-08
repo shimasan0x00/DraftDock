@@ -31,10 +31,28 @@ export function normalizeAccelerator(key: string): string {
 }
 
 function showHotkeyError(key: string, action: string): void {
+  if (isUpdating) {
+    pendingErrors.push({ key, action });
+    return;
+  }
   new Notification({
     title: 'DraftDock - ホットキー登録エラー',
     body: `${action}キー「${key}」の登録に失敗しました。他のアプリケーションで使用されている可能性があります。`,
   }).show();
+}
+
+const pendingErrors: Array<{ key: string; action: string }> = [];
+
+function flushHotkeyErrors(): void {
+  if (pendingErrors.length === 0) return;
+  const body = pendingErrors
+    .map(e => `${e.action}キー「${e.key}」`)
+    .join('\n');
+  new Notification({
+    title: 'DraftDock - ホットキー登録エラー',
+    body: `以下のキーの登録に失敗しました。他のアプリケーションで使用されている可能性があります。\n${body}`,
+  }).show();
+  pendingErrors.length = 0;
 }
 
 function registerHotkeyInternal(
@@ -140,6 +158,7 @@ export function updateHotkeys(copyCallbackFn: HotkeyCallback, clearCallbackFn: H
     return { toggle: toggleSuccess, copy: copySuccess, clear: clearSuccess };
   } finally {
     isUpdating = false;
+    flushHotkeyErrors();
   }
 }
 
