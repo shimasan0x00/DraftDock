@@ -63,7 +63,7 @@
       ],
       "icon": "assets/draft_pad_512.png",
       "category": "public.app-category.utilities",
-      "identity": null,
+      "identity": "-",
       "hardenedRuntime": false,
       "gatekeeperAssess": false
     },
