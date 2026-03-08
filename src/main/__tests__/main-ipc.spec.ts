@@ -168,9 +168,10 @@ describe('IPC Handlers', () => {
       expect(result).toBe(false);
     });
 
-    it('1回目失敗→リトライ成功時にtrueを返す', () => {
+    it('1回目失敗（一時的エラー）→リトライ成功時にtrueを返す', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      mockStore.setDraft.mockImplementationOnce(() => { throw new Error('disk full'); });
+      const busyError = Object.assign(new Error('resource busy'), { code: 'EBUSY' });
+      mockStore.setDraft.mockImplementationOnce(() => { throw busyError; });
 
       const result = getHandler('save-draft')(null, 'test');
       expect(result).toBe(true);
@@ -179,11 +180,45 @@ describe('IPC Handlers', () => {
       consoleSpy.mockRestore();
     });
 
+    it('1回目失敗（永続的エラー ENOSPC）→リトライせずfalseを返す', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const diskFullError = Object.assign(new Error('no space left'), { code: 'ENOSPC' });
+      mockStore.setDraft.mockImplementationOnce(() => { throw diskFullError; });
+
+      const result = getHandler('save-draft')(null, 'test');
+      expect(result).toBe(false);
+      expect(mockStore.setDraft).toHaveBeenCalledTimes(1);
+      expect(mockStore.setSaveFailedFlag).toHaveBeenCalledWith(true);
+      consoleSpy.mockRestore();
+    });
+
+    it('1回目失敗（永続的エラー EACCES）→リトライせずfalseを返す', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const permError = Object.assign(new Error('permission denied'), { code: 'EACCES' });
+      mockStore.setDraft.mockImplementationOnce(() => { throw permError; });
+
+      const result = getHandler('save-draft')(null, 'test');
+      expect(result).toBe(false);
+      expect(mockStore.setDraft).toHaveBeenCalledTimes(1);
+      expect(mockStore.setSaveFailedFlag).toHaveBeenCalledWith(true);
+      consoleSpy.mockRestore();
+    });
+
+    it('1回目失敗（コードなしエラー）→リトライ成功時にtrueを返す', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      mockStore.setDraft.mockImplementationOnce(() => { throw new Error('unknown error'); });
+
+      const result = getHandler('save-draft')(null, 'test');
+      expect(result).toBe(true);
+      expect(mockStore.setDraft).toHaveBeenCalledTimes(2);
+      consoleSpy.mockRestore();
+    });
+
     it('2回連続失敗時にfalseを返しsaveFailedFlagを設定する', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockStore.setDraft
-        .mockImplementationOnce(() => { throw new Error('disk full'); })
-        .mockImplementationOnce(() => { throw new Error('disk full'); });
+        .mockImplementationOnce(() => { throw new Error('transient error'); })
+        .mockImplementationOnce(() => { throw new Error('transient error'); });
 
       const result = getHandler('save-draft')(null, 'test');
       expect(result).toBe(false);
