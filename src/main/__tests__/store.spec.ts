@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // electron-storeモック用のストレージ
-const { mockSettingsData, mockDraftData } = vi.hoisted(() => {
+const { mockSettingsData, mockDraftData, mockInternalData } = vi.hoisted(() => {
   const mockSettingsData: Record<string, unknown> = {};
   const mockDraftData: Record<string, unknown> = {};
-  return { mockSettingsData, mockDraftData };
+  const mockInternalData: Record<string, unknown> = {};
+  return { mockSettingsData, mockDraftData, mockInternalData };
 });
 
 vi.mock('electron', () => ({
@@ -17,7 +18,12 @@ vi.mock('electron-store', () => ({
   default: class MockStore {
     private data: Record<string, unknown>;
     constructor(opts: { name: string; defaults?: Record<string, unknown> }) {
-      const storage = opts.name === 'settings' ? mockSettingsData : mockDraftData;
+      const storageMap: Record<string, Record<string, unknown>> = {
+        settings: mockSettingsData,
+        draft: mockDraftData,
+        'internal-state': mockInternalData,
+      };
+      const storage = storageMap[opts.name] ?? mockDraftData;
       this.data = storage;
       if (opts.defaults) {
         for (const [key, value] of Object.entries(opts.defaults)) {
@@ -68,6 +74,7 @@ vi.mock('electron-store', () => ({
 function resetMockData() {
   for (const key of Object.keys(mockSettingsData)) delete mockSettingsData[key];
   for (const key of Object.keys(mockDraftData)) delete mockDraftData[key];
+  for (const key of Object.keys(mockInternalData)) delete mockInternalData[key];
 }
 
 describe('Store Default Settings', () => {

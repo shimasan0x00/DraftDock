@@ -1,6 +1,7 @@
 import { BrowserWindow, screen, app } from 'electron';
 import * as path from 'path';
 import { store, Settings } from './store';
+import { IPC_CHANNELS } from '../shared/ipc-channels';
 
 let mainWindow: BrowserWindow | null = null;
 let settingsWindow: BrowserWindow | null = null;
@@ -158,7 +159,7 @@ export function showMainWindow(): void {
   if (mainWindow) {
     mainWindow.show();
     mainWindow.focus();
-    mainWindow.webContents.send('window-shown');
+    mainWindow.webContents.send(IPC_CHANNELS.WINDOW_SHOWN);
   }
 }
 
@@ -183,6 +184,7 @@ export function getMainWindow(): BrowserWindow | null {
 
 export function destroyMainWindow(): void {
   if (mainWindow) {
+    mainWindow.webContents.removeAllListeners();
     mainWindow.removeAllListeners();
     mainWindow.close();
     mainWindow = null;

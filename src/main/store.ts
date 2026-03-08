@@ -20,11 +20,11 @@ export interface Draft {
   updatedAt: string;
 }
 
-interface InternalSettings extends Settings {
-  _saveFailed?: boolean;
+interface InternalState {
+  saveFailed: boolean;
 }
 
-const DEFAULT_SETTINGS: InternalSettings = {
+const DEFAULT_SETTINGS: Settings = {
   hotkeys: {
     toggle: 'Ctrl+Shift+D',
     copy: 'Ctrl+Enter',
@@ -43,14 +43,19 @@ const DEFAULT_DRAFT: Draft = {
   updatedAt: '',
 };
 
+const DEFAULT_INTERNAL_STATE: InternalState = {
+  saveFailed: false,
+};
+
 class AppStore {
-  private settingsStore: Store<InternalSettings>;
+  private settingsStore: Store<Settings>;
   private draftStore: Store<Draft>;
+  private internalStore: Store<InternalState>;
 
   constructor() {
     const userDataPath = app.getPath('userData');
 
-    this.settingsStore = new Store<InternalSettings>({
+    this.settingsStore = new Store<Settings>({
       name: 'settings',
       cwd: userDataPath,
       defaults: DEFAULT_SETTINGS,
@@ -60,6 +65,12 @@ class AppStore {
       name: 'draft',
       cwd: userDataPath,
       defaults: DEFAULT_DRAFT,
+    });
+
+    this.internalStore = new Store<InternalState>({
+      name: 'internal-state',
+      cwd: userDataPath,
+      defaults: DEFAULT_INTERNAL_STATE,
     });
   }
 
@@ -81,30 +92,27 @@ class AppStore {
   }
 
   setSettings(settings: Partial<Settings>): void {
+    const current = this.settingsStore.store;
+    const merged: Record<string, unknown> = {};
+
     if (settings.hotkeys) {
-      if (settings.hotkeys.toggle !== undefined) {
-        this.settingsStore.set('hotkeys.toggle', settings.hotkeys.toggle);
-      }
-      if (settings.hotkeys.copy !== undefined) {
-        this.settingsStore.set('hotkeys.copy', settings.hotkeys.copy);
-      }
-      if (settings.hotkeys.clear !== undefined) {
-        this.settingsStore.set('hotkeys.clear', settings.hotkeys.clear);
-      }
+      merged.hotkeys = {
+        toggle: settings.hotkeys.toggle ?? current.hotkeys.toggle,
+        copy: settings.hotkeys.copy ?? current.hotkeys.copy,
+        clear: settings.hotkeys.clear ?? current.hotkeys.clear,
+      };
     }
     if (settings.window) {
-      if (settings.window.x !== undefined) {
-        this.settingsStore.set('window.x', settings.window.x);
-      }
-      if (settings.window.y !== undefined) {
-        this.settingsStore.set('window.y', settings.window.y);
-      }
-      if (settings.window.width !== undefined) {
-        this.settingsStore.set('window.width', settings.window.width);
-      }
-      if (settings.window.height !== undefined) {
-        this.settingsStore.set('window.height', settings.window.height);
-      }
+      merged.window = {
+        x: settings.window.x !== undefined ? settings.window.x : current.window.x,
+        y: settings.window.y !== undefined ? settings.window.y : current.window.y,
+        width: settings.window.width !== undefined ? settings.window.width : current.window.width,
+        height: settings.window.height !== undefined ? settings.window.height : current.window.height,
+      };
+    }
+
+    if (Object.keys(merged).length > 0) {
+      this.settingsStore.set(merged);
     }
   }
 
@@ -131,15 +139,15 @@ class AppStore {
   }
 
   setSaveFailedFlag(failed: boolean): void {
-    this.settingsStore.set('_saveFailed', failed);
+    this.internalStore.set('saveFailed', failed);
   }
 
   getSaveFailedFlag(): boolean {
-    return this.settingsStore.get('_saveFailed', false) === true;
+    return this.internalStore.get('saveFailed', false) === true;
   }
 
   clearSaveFailedFlag(): void {
-    this.settingsStore.set('_saveFailed', false);
+    this.internalStore.set('saveFailed', false);
   }
 
   resetSettings(): void {

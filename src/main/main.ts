@@ -5,6 +5,7 @@ import { registerToggleHotkey, registerCopyHotkey, registerClearHotkey, unregist
 import { store } from './store';
 import { createApplicationMenu } from './menu';
 import { validateDraftContent, validateCopyText, validateHotkeySettings } from './validators';
+import { IPC_CHANNELS } from '../shared/ipc-channels';
 
 function sendToMainWindow(channel: string): void {
   const mainWindow = getMainWindow();
@@ -29,10 +30,10 @@ if (!gotTheLock) {
 
     registerToggleHotkey();
     registerCopyHotkey(() => {
-      sendToMainWindow('copy-requested');
+      sendToMainWindow(IPC_CHANNELS.COPY_REQUESTED);
     });
     registerClearHotkey(() => {
-      sendToMainWindow('clear-requested');
+      sendToMainWindow(IPC_CHANNELS.CLEAR_REQUESTED);
     });
 
     setupIpcHandlers();
@@ -69,6 +70,14 @@ function checkSaveFailedFlag(): void {
   }
 }
 
+function setFailedFlagSafely(): void {
+  try {
+    store.setSaveFailedFlag(true);
+  } catch (flagError) {
+    console.error('Failed to set save-failed flag:', flagError);
+  }
+}
+
 function isRetryableError(error: unknown): boolean {
   if (error instanceof Error) {
     const code = (error as NodeJS.ErrnoException).code;
@@ -80,7 +89,7 @@ function isRetryableError(error: unknown): boolean {
 }
 
 function setupIpcHandlers(): void {
-  ipcMain.handle('get-draft', () => {
+  ipcMain.handle(IPC_CHANNELS.GET_DRAFT, () => {
     try {
       return store.getDraft();
     } catch (error) {
@@ -89,7 +98,7 @@ function setupIpcHandlers(): void {
     }
   });
 
-  ipcMain.handle('save-draft', (_event, content: unknown) => {
+  ipcMain.handle(IPC_CHANNELS.SAVE_DRAFT, (_event, content: unknown) => {
     if (!validateDraftContent(content)) return false;
     try {
       store.setDraft(content);
@@ -97,11 +106,7 @@ function setupIpcHandlers(): void {
     } catch (firstError) {
       console.error('Failed to save draft (attempt 1):', firstError);
       if (!isRetryableError(firstError)) {
-        try {
-          store.setSaveFailedFlag(true);
-        } catch (flagError) {
-          console.error('Failed to set save-failed flag:', flagError);
-        }
+        setFailedFlagSafely();
         return false;
       }
     }
@@ -110,16 +115,12 @@ function setupIpcHandlers(): void {
       return true;
     } catch (retryError) {
       console.error('Failed to save draft (attempt 2, final):', retryError);
-      try {
-        store.setSaveFailedFlag(true);
-      } catch (flagError) {
-        console.error('Failed to set save-failed flag:', flagError);
-      }
+      setFailedFlagSafely();
       return false;
     }
   });
 
-  ipcMain.handle('clear-draft', () => {
+  ipcMain.handle(IPC_CHANNELS.CLEAR_DRAFT, () => {
     try {
       store.clearDraft();
       return true;
@@ -129,7 +130,7 @@ function setupIpcHandlers(): void {
     }
   });
 
-  ipcMain.handle('copy-to-clipboard', (_event, text: unknown) => {
+  ipcMain.handle(IPC_CHANNELS.COPY_TO_CLIPBOARD, (_event, text: unknown) => {
     if (!validateCopyText(text)) return false;
     try {
       clipboard.writeText(text);
@@ -141,16 +142,16 @@ function setupIpcHandlers(): void {
     }
   });
 
-  ipcMain.handle('hide-window', () => {
+  ipcMain.handle(IPC_CHANNELS.HIDE_WINDOW, () => {
     hideMainWindow();
     return true;
   });
 
-  ipcMain.handle('get-settings', () => {
+  ipcMain.handle(IPC_CHANNELS.GET_SETTINGS, () => {
     return store.getSettings();
   });
 
-  ipcMain.handle('save-settings', (_event, settings: unknown) => {
+  ipcMain.handle(IPC_CHANNELS.SAVE_SETTINGS, (_event, settings: unknown) => {
     if (!validateHotkeySettings(settings)) {
       return { toggle: false, copy: false, clear: false };
     }
@@ -166,10 +167,10 @@ function setupIpcHandlers(): void {
 
       const result = updateHotkeys(
         () => {
-          sendToMainWindow('copy-requested');
+          sendToMainWindow(IPC_CHANNELS.COPY_REQUESTED);
         },
         () => {
-          sendToMainWindow('clear-requested');
+          sendToMainWindow(IPC_CHANNELS.CLEAR_REQUESTED);
         }
       );
 
@@ -193,12 +194,12 @@ function setupIpcHandlers(): void {
     }
   });
 
-  ipcMain.handle('close-settings', () => {
+  ipcMain.handle(IPC_CHANNELS.CLOSE_SETTINGS, () => {
     closeSettingsWindow();
     return true;
   });
 
-  ipcMain.handle('open-settings', () => {
+  ipcMain.handle(IPC_CHANNELS.OPEN_SETTINGS, () => {
     createSettingsWindow();
     return true;
   });

@@ -67,7 +67,14 @@
         await window.draftdock.copyToClipboard(text);
       } catch (error) {
         console.error('Failed to copy to clipboard:', error);
+        return;
       }
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        saveTimeout = null;
+      }
+      saveDraft();
+      window.draftdock.hideWindow();
     }
   }
 

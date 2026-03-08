@@ -23,6 +23,7 @@ const {
       send: vi.fn(),
       on: vi.fn(),
       toggleDevTools: vi.fn(),
+      removeAllListeners: vi.fn(),
     },
   };
 
@@ -239,6 +240,7 @@ describe('window', () => {
       windowModule.createMainWindow();
       windowModule.destroyMainWindow();
 
+      expect(mockBrowserWindowInstance.webContents.removeAllListeners).toHaveBeenCalledWith();
       expect(mockBrowserWindowInstance.removeAllListeners).toHaveBeenCalledWith();
       expect(mockBrowserWindowInstance.close).toHaveBeenCalled();
       expect(windowModule.getMainWindow()).toBeNull();
