@@ -41,8 +41,11 @@ function getSecureWebPreferences(): Electron.WebPreferences {
   };
 }
 
+const devToolsRegistered = new WeakSet<BrowserWindow>();
+
 function setupDevToolsShortcut(window: BrowserWindow): void {
-  if (!app.isPackaged) {
+  if (!app.isPackaged && !devToolsRegistered.has(window)) {
+    devToolsRegistered.add(window);
     window.webContents.on('before-input-event', (_event, input) => {
       if (input.key === 'F12') {
         window.webContents.toggleDevTools();

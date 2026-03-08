@@ -69,6 +69,16 @@ function checkSaveFailedFlag(): void {
   }
 }
 
+function isRetryableError(error: unknown): boolean {
+  if (error instanceof Error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'ENOSPC' || code === 'EACCES' || code === 'EPERM' || code === 'EROFS') {
+      return false;
+    }
+  }
+  return true;
+}
+
 function setupIpcHandlers(): void {
   ipcMain.handle('get-draft', () => {
     try {
@@ -86,6 +96,14 @@ function setupIpcHandlers(): void {
       return true;
     } catch (firstError) {
       console.error('Failed to save draft (attempt 1):', firstError);
+      if (!isRetryableError(firstError)) {
+        try {
+          store.setSaveFailedFlag(true);
+        } catch (flagError) {
+          console.error('Failed to set save-failed flag:', flagError);
+        }
+        return false;
+      }
     }
     try {
       store.setDraft(content);

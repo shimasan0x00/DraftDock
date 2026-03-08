@@ -117,13 +117,17 @@ class AppStore {
   }
 
   setDraft(content: string): void {
-    this.draftStore.set('content', content);
-    this.draftStore.set('updatedAt', new Date().toISOString());
+    this.draftStore.set({
+      content,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   clearDraft(): void {
-    this.draftStore.set('content', '');
-    this.draftStore.set('updatedAt', new Date().toISOString());
+    this.draftStore.set({
+      content: '',
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   setSaveFailedFlag(failed: boolean): void {
