@@ -1,36 +1,37 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { DraftDockAPI } from '../shared/types';
-import { IPC_CHANNELS } from '../shared/ipc-channels';
 export type { DraftDockAPI };
 
+// sandbox: true のためpreloadスクリプトではelectron以外のrequireが使えない。
+// IPC_CHANNELSを使わず文字列リテラルを直接指定する。
 const api: DraftDockAPI = {
-  getDraft: () => ipcRenderer.invoke(IPC_CHANNELS.GET_DRAFT),
-  saveDraft: (content: string) => ipcRenderer.invoke(IPC_CHANNELS.SAVE_DRAFT, content),
-  clearDraft: () => ipcRenderer.invoke(IPC_CHANNELS.CLEAR_DRAFT),
-  copyToClipboard: (text: string) => ipcRenderer.invoke(IPC_CHANNELS.COPY_TO_CLIPBOARD, text),
-  hideWindow: () => ipcRenderer.invoke(IPC_CHANNELS.HIDE_WINDOW),
-  getSettings: () => ipcRenderer.invoke(IPC_CHANNELS.GET_SETTINGS),
-  saveSettings: (settings: { toggle: string; copy: string; clear: string }) => ipcRenderer.invoke(IPC_CHANNELS.SAVE_SETTINGS, settings),
-  closeSettings: () => ipcRenderer.invoke(IPC_CHANNELS.CLOSE_SETTINGS),
-  openSettings: () => ipcRenderer.invoke(IPC_CHANNELS.OPEN_SETTINGS),
+  getDraft: () => ipcRenderer.invoke('get-draft'),
+  saveDraft: (content: string) => ipcRenderer.invoke('save-draft', content),
+  clearDraft: () => ipcRenderer.invoke('clear-draft'),
+  copyToClipboard: (text: string) => ipcRenderer.invoke('copy-to-clipboard', text),
+  hideWindow: () => ipcRenderer.invoke('hide-window'),
+  getSettings: () => ipcRenderer.invoke('get-settings'),
+  saveSettings: (settings: { toggle: string; copy: string; clear: string }) => ipcRenderer.invoke('save-settings', settings),
+  closeSettings: () => ipcRenderer.invoke('close-settings'),
+  openSettings: () => ipcRenderer.invoke('open-settings'),
   // 単一レンダラーウィンドウ前提のため、removeAllListenersで二重登録を防止している。
   // index.tsの初期化が再実行された場合でも、リスナーが重複しないことを保証する。
   onWindowShown: (callback: () => void) => {
-    ipcRenderer.removeAllListeners(IPC_CHANNELS.WINDOW_SHOWN);
-    ipcRenderer.on(IPC_CHANNELS.WINDOW_SHOWN, callback);
+    ipcRenderer.removeAllListeners('window-shown');
+    ipcRenderer.on('window-shown', callback);
   },
   onCopyRequested: (callback: () => void) => {
-    ipcRenderer.removeAllListeners(IPC_CHANNELS.COPY_REQUESTED);
-    ipcRenderer.on(IPC_CHANNELS.COPY_REQUESTED, callback);
+    ipcRenderer.removeAllListeners('copy-requested');
+    ipcRenderer.on('copy-requested', callback);
   },
   onClearRequested: (callback: () => void) => {
-    ipcRenderer.removeAllListeners(IPC_CHANNELS.CLEAR_REQUESTED);
-    ipcRenderer.on(IPC_CHANNELS.CLEAR_REQUESTED, callback);
+    ipcRenderer.removeAllListeners('clear-requested');
+    ipcRenderer.on('clear-requested', callback);
   },
   removeAllListeners: () => {
-    ipcRenderer.removeAllListeners(IPC_CHANNELS.WINDOW_SHOWN);
-    ipcRenderer.removeAllListeners(IPC_CHANNELS.COPY_REQUESTED);
-    ipcRenderer.removeAllListeners(IPC_CHANNELS.CLEAR_REQUESTED);
+    ipcRenderer.removeAllListeners('window-shown');
+    ipcRenderer.removeAllListeners('copy-requested');
+    ipcRenderer.removeAllListeners('clear-requested');
   },
 };
 
