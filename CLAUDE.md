@@ -73,7 +73,7 @@ PRの作成は `/pr` コマンドで明示的に実行する。自動でPRを作
 | フック | 保護内容 |
 |--------|---------|
 | pre-commit | mainブランチでのコミット禁止、spec.md変更時リマインダー |
-| pre-push | mainからのpush禁止、mainへのpush禁止 |
+| pre-push | mainからのpush禁止、mainへのpush禁止、unit test実行 |
 
 ## ブランチ命名規則
 
@@ -109,28 +109,41 @@ PRの作成は `/pr` コマンドで明示的に実行する。自動でPRを作
 ```
 src/
 ├── main/
-│   ├── main.ts       # エントリポイント
-│   ├── tray.ts       # トレイ制御
-│   ├── hotkey.ts     # グローバルホットキー
-│   ├── window.ts     # ウィンドウ管理
-│   ├── store.ts      # 永続化
-│   ├── menu.ts       # アプリケーションメニュー
-│   └── __tests__/    # 単体テスト（Vitest）
+│   ├── main.ts          # エントリポイント
+│   ├── tray.ts          # トレイ制御
+│   ├── hotkey.ts        # グローバルホットキー
+│   ├── window.ts        # ウィンドウ管理
+│   ├── store.ts         # 永続化
+│   ├── menu.ts          # アプリケーションメニュー
+│   ├── validators.ts    # 入力バリデーション
+│   └── __tests__/       # 単体テスト（Vitest）
+├── shared/
+│   ├── ipc-channels.ts  # IPCチャネル定数
+│   └── types.ts         # 共有型定義
 ├── preload/
-│   └── preload.ts    # contextBridge API
+│   └── preload.ts       # contextBridge API
 └── renderer/
-    ├── index.html    # メインウィンドウ
+    ├── index.html       # メインウィンドウ
+    ├── index.css
     ├── index.ts
-    ├── settings.html # 設定画面
+    ├── settings.html    # 設定画面
+    ├── settings.css
     ├── settings.ts
-    └── types.d.ts    # 型定義
-e2e/                  # E2Eテスト（Playwright）
+    └── types.d.ts       # 型定義
+e2e/                     # E2Eテスト（Playwright）
 assets/
-├── fonts/            # Bizin Gothic フォント
-├── draft_pad.ico     # Windowsアイコン
-├── draft_pad_16.png  # トレイアイコン
-├── draft_pad_256.png # ウィンドウアイコン
-└── draft_pad_512.png # macOSアイコン
+├── fonts/               # Bizin Gothic フォント
+├── draft_pad.ico        # Windowsアイコン
+├── draft_pad_16.png     # トレイアイコン
+├── draft_pad_256.png    # ウィンドウアイコン
+└── draft_pad_512.png    # macOSアイコン
+scripts/
+├── copy-assets.js       # アセットコピー
+└── setup-githooks.sh    # Git Hooks設定
+docs/                    # ドキュメント
+.githooks/
+├── pre-commit           # mainコミット禁止、spec.mdリマインダー
+└── pre-push             # mainプッシュ禁止、unit test実行
 ```
 
 ## デフォルト設定値

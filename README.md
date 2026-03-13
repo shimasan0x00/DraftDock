@@ -1,158 +1,162 @@
 # DraftDock
 
-AI/チャットツールの誤送信を防ぐための常駐型下書きアプリケーション。
+A resident draft application to prevent accidental sends in AI/chat tools.
 
-## 対応OS
+## Supported OS
 
 - Windows (x64)
 - macOS (Intel / Apple Silicon)
 
-## ダウンロード
+## Download
 
-[Releases](https://github.com/shimasan0x00/DraftDock/releases) からダウンロードできます。
+Download from [Releases](https://github.com/shimasan0x00/DraftDock/releases).
 
-| OS | ファイル |
-|----|---------|
-| Windows | `.exe`（NSISインストーラー） |
-| macOS | `.dmg` または `.zip` |
+| OS | File |
+|----|------|
+| Windows | `.exe` (NSIS installer) |
+| macOS | `.dmg` or `.zip` |
 
-## 概要
-
-<p align="center">
-  <img src=".readme/draftdock.png" alt="DraftDock メイン画面" width="600">
-</p>
-
-- **ホットキーで即呼び出し** - どんなアプリを使っていても `Ctrl+Shift+D` で下書きウィンドウを表示
-- **ワンアクションでコピー** - `Ctrl+Enter` でクリップボードにコピーしてウィンドウを閉じる
-- **ワンアクションでクリア** - `Ctrl+Shift+L` で下書きをクリア
-- **下書きが消えない** - ウィンドウを閉じてもアプリを再起動しても下書きが復元される
+## Overview
 
 <p align="center">
-  <img src=".readme/settings.png" alt="DraftDock 設定画面" width="450">
+  <img src=".readme/draftdock.png" alt="DraftDock main window" width="600">
 </p>
 
-## 機能
+- **Instant access via hotkey** - Press `Ctrl+Shift+D` to show the draft window from any application
+- **One-action copy** - `Ctrl+Enter` copies to clipboard and closes the window
+- **One-action clear** - `Ctrl+Shift+L` clears the draft
+- **Drafts persist** - Drafts are restored even after closing the window or restarting the app
 
-| 機能 | 説明 |
-|------|------|
-| トレイ常駐 | システムトレイに常駐し、いつでも呼び出し可能 |
-| ホットキー | 起動キー・コピーキーをカスタマイズ可能 |
-| 永続化 | 下書きとウィンドウ位置を自動保存 |
-| 最前面表示 | 他のウィンドウより常に前面に表示 |
+<p align="center">
+  <img src=".readme/settings.png" alt="DraftDock settings window" width="450">
+</p>
 
-## デフォルトキー
+## Features
 
-| 操作 | キー |
-|------|------|
-| 表示/非表示 | `Ctrl+Shift+D` |
-| コピー&閉じる | `Ctrl+Enter` |
-| クリア | `Ctrl+Shift+L` |
-| 閉じる | `Escape` |
+| Feature | Description |
+|---------|-------------|
+| Tray resident | Stays in the system tray, always ready to be called |
+| Hotkey | Customizable activation key and copy key |
+| Persistence | Automatically saves drafts and window position |
+| Always on top | Always displayed in front of other windows |
 
-> **Note**: macOSでも現在はCtrl系のキーバインドです。設定画面からカスタマイズ可能です。
+## Default Keyboard Shortcuts
 
-すべてのホットキーは設定画面（トレイアイコン → 設定）からカスタマイズ可能です。
+| Action | Key |
+|--------|-----|
+| Show/Hide | `Ctrl+Shift+D` |
+| Copy & Close | `Ctrl+Enter` |
+| Clear | `Ctrl+Shift+L` |
+| Close | `Escape` |
 
-## インストール
+> **Note**: On macOS, Ctrl-based keybindings are currently used as well. You can customize them from the settings screen.
+
+All hotkeys can be customized from the settings screen (tray icon → Settings).
+
+## Installation
 
 ### macOS
 
-DraftDockはad-hoc署名のため、初回起動時にGatekeeperの警告が表示されます。以下のコマンドで回避できます:
+DraftDock uses ad-hoc signing, so Gatekeeper may show a warning on first launch. You can bypass it with the following command:
 
 ```bash
 xattr -cr /Applications/DraftDock.app
 ```
 
-### 開発環境
+### Windows Setup
+
+See [docs/windows-setup-guide.md](docs/windows-setup-guide.md) for details.
+
+## Development
 
 ```bash
-# リポジトリをクローン
+# Clone the repository
 git clone https://github.com/shimasan0x00/DraftDock.git
 cd DraftDock
 
-# 依存関係をインストール
+# Install dependencies
 npm install
 
-# ビルド & 起動
+# Build & launch
 npm start
 ```
 
-### Windows環境セットアップ
-
-詳細は [docs/windows-setup-guide.md](docs/windows-setup-guide.md) を参照。
-
-## 開発
-
-### Git Hooks セットアップ
+### Git Hooks Setup
 
 ```bash
 chmod +x ./scripts/setup-githooks.sh
 ./scripts/setup-githooks.sh
 ```
 
-### コマンド
+### Commands
 
-| コマンド | 説明 |
-|---------|------|
-| `npm run build` | TypeScriptをコンパイル |
-| `npm start` | ビルド & アプリ起動 |
-| `npm test` | 全テスト実行（単体 + E2E） |
-| `npm run test:unit` | 単体テスト（Vitest） |
-| `npm run test:e2e` | E2Eテスト（Playwright） |
-| `npm run pack` | パッケージング（ディレクトリ） |
-| `npm run dist` | インストーラー作成 |
+| Command | Description |
+|---------|-------------|
+| `npm run build` | Compile TypeScript |
+| `npm start` | Build & launch the app |
+| `npm test` | Run all tests (unit + E2E) |
+| `npm run test:unit` | Unit tests (Vitest) |
+| `npm run test:e2e` | E2E tests (Playwright) |
+| `npm run pack` | Package (directory) |
+| `npm run dist` | Create installer |
 
-### ディレクトリ構造
+### Directory Structure
 
 ```
 src/
-├── main/           # メインプロセス
-│   ├── main.ts     # エントリポイント
-│   ├── tray.ts     # トレイ制御
-│   ├── hotkey.ts   # グローバルホットキー
-│   ├── window.ts   # ウィンドウ管理
-│   ├── store.ts    # 永続化
-│   ├── menu.ts     # アプリケーションメニュー
-│   └── __tests__/  # 単体テスト
+├── main/              # Main process
+│   ├── main.ts        # Entry point
+│   ├── tray.ts        # Tray management
+│   ├── hotkey.ts      # Global hotkey
+│   ├── window.ts      # Window management
+│   ├── store.ts       # Persistence
+│   ├── menu.ts        # Application menu
+│   ├── validators.ts  # Input validation
+│   └── __tests__/     # Unit tests
+├── shared/
+│   ├── ipc-channels.ts # IPC channel constants
+│   └── types.ts       # Shared type definitions
 ├── preload/
-│   └── preload.ts  # contextBridge API
+│   └── preload.ts     # contextBridge API
 └── renderer/
-    ├── index.html  # メインウィンドウ
+    ├── index.html     # Main window
+    ├── index.css
     ├── index.ts
-    ├── settings.html # 設定画面
+    ├── settings.html  # Settings window
+    ├── settings.css
     ├── settings.ts
-    └── types.d.ts    # 型定義
-e2e/                # E2Eテスト（Playwright）
+    └── types.d.ts     # Type definitions
+e2e/                   # E2E tests (Playwright)
 assets/
-├── fonts/          # Bizin Gothic（日本語対応等幅フォント）
-└── *.ico, *.png    # アイコン
+├── fonts/             # Bizin Gothic (Japanese monospace font)
+└── *.ico, *.png       # Icons
 ```
 
-### データ保存場所
+### Data Storage
 
 ```
 # Windows
 %APPDATA%\DraftDock\
-├── settings.json   # 設定（ホットキー、ウィンドウ位置）
-└── draft.json      # 下書き
+├── settings.json   # Settings (hotkeys, window position)
+└── draft.json      # Draft
 
 # macOS
 ~/Library/Application Support/DraftDock/
-├── settings.json   # 設定（ホットキー、ウィンドウ位置）
-└── draft.json      # 下書き
+├── settings.json   # Settings (hotkeys, window position)
+└── draft.json      # Draft
 ```
 
-## 技術スタック
+## Tech Stack
 
-- **Electron** - クロスプラットフォームデスクトップアプリ
-- **TypeScript** - 型安全な開発
-- **electron-store** - 設定・データの永続化
+- **Electron** - Cross-platform desktop application
+- **TypeScript** - Type-safe development
+- **electron-store** - Settings and data persistence
 
-## ドキュメント
+## Documentation
 
-- [仕様書](plan/spec.md)
-- [Windows環境セットアップ・検証ガイド](docs/windows-setup-guide.md)
+- [Specification](plan/spec.md)
+- [Windows Setup & Verification Guide](docs/windows-setup-guide.md)
 
-## ライセンス
+## License
 
 MIT
