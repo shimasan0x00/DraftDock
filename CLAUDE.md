@@ -159,21 +159,28 @@ docs/                    # ドキュメント
 | デバウンス保存 | 500ms |
 | フォント | Bizin Gothic（日本語対応等幅） |
 
-## テスト
-
-### コマンド
+## コマンド
 
 | コマンド | 説明 |
 |---------|------|
+| `npm run build` | TypeScriptコンパイル + アセットコピー |
+| `npm start` | ビルド & アプリ起動 |
 | `npm test` | 全テスト実行（単体 + E2E） |
 | `npm run test:unit` | Vitest単体テスト |
 | `npm run test:unit:watch` | Vitest ウォッチモード |
 | `npm run test:e2e` | Playwright E2Eテスト |
+| `npm run pack` | パッケージング（ディレクトリ） |
+| `npm run dist` | インストーラー作成 |
 
-### テスト構成
+## テスト構成
 
 - **単体テスト**: `src/main/__tests__/*.spec.ts`
 - **E2Eテスト**: `e2e/*.spec.ts`
+
+## 注意事項
+
+- preloadスクリプトはsandbox環境で動作し、`require`は使用不可。`contextBridge`経由でrendererにAPIを公開する
+- IPC通信のチャネル名は`src/shared/ipc-channels.ts`で一元管理。ハードコードしない
 
 ## CI/CD
 
