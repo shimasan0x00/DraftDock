@@ -73,7 +73,7 @@ PRの作成は `/pr` コマンドで明示的に実行する。自動でPRを作
 | フック | 保護内容 |
 |--------|---------|
 | pre-commit | mainブランチでのコミット禁止、spec.md変更時リマインダー |
-| pre-push | mainからのpush禁止、mainへのpush禁止 |
+| pre-push | mainからのpush禁止、mainへのpush禁止、unit test実行 |
 
 ## ブランチ命名規則
 
@@ -109,28 +109,41 @@ PRの作成は `/pr` コマンドで明示的に実行する。自動でPRを作
 ```
 src/
 ├── main/
-│   ├── main.ts       # エントリポイント
-│   ├── tray.ts       # トレイ制御
-│   ├── hotkey.ts     # グローバルホットキー
-│   ├── window.ts     # ウィンドウ管理
-│   ├── store.ts      # 永続化
-│   ├── menu.ts       # アプリケーションメニュー
-│   └── __tests__/    # 単体テスト（Vitest）
+│   ├── main.ts          # エントリポイント
+│   ├── tray.ts          # トレイ制御
+│   ├── hotkey.ts        # グローバルホットキー
+│   ├── window.ts        # ウィンドウ管理
+│   ├── store.ts         # 永続化
+│   ├── menu.ts          # アプリケーションメニュー
+│   ├── validators.ts    # 入力バリデーション
+│   └── __tests__/       # 単体テスト（Vitest）
+├── shared/
+│   ├── ipc-channels.ts  # IPCチャネル定数
+│   └── types.ts         # 共有型定義
 ├── preload/
-│   └── preload.ts    # contextBridge API
+│   └── preload.ts       # contextBridge API
 └── renderer/
-    ├── index.html    # メインウィンドウ
+    ├── index.html       # メインウィンドウ
+    ├── index.css
     ├── index.ts
-    ├── settings.html # 設定画面
+    ├── settings.html    # 設定画面
+    ├── settings.css
     ├── settings.ts
-    └── types.d.ts    # 型定義
-e2e/                  # E2Eテスト（Playwright）
+    └── types.d.ts       # 型定義
+e2e/                     # E2Eテスト（Playwright）
 assets/
-├── fonts/            # Bizin Gothic フォント
-├── draft_pad.ico     # Windowsアイコン
-├── draft_pad_16.png  # トレイアイコン
-├── draft_pad_256.png # ウィンドウアイコン
-└── draft_pad_512.png # macOSアイコン
+├── fonts/               # Bizin Gothic フォント
+├── draft_pad.ico        # Windowsアイコン
+├── draft_pad_16.png     # トレイアイコン
+├── draft_pad_256.png    # ウィンドウアイコン
+└── draft_pad_512.png    # macOSアイコン
+scripts/
+├── copy-assets.js       # アセットコピー
+└── setup-githooks.sh    # Git Hooks設定
+docs/                    # ドキュメント
+.githooks/
+├── pre-commit           # mainコミット禁止、spec.mdリマインダー
+└── pre-push             # mainプッシュ禁止、unit test実行
 ```
 
 ## デフォルト設定値
@@ -146,21 +159,28 @@ assets/
 | デバウンス保存 | 500ms |
 | フォント | Bizin Gothic（日本語対応等幅） |
 
-## テスト
-
-### コマンド
+## コマンド
 
 | コマンド | 説明 |
 |---------|------|
+| `npm run build` | TypeScriptコンパイル + アセットコピー |
+| `npm start` | ビルド & アプリ起動 |
 | `npm test` | 全テスト実行（単体 + E2E） |
 | `npm run test:unit` | Vitest単体テスト |
 | `npm run test:unit:watch` | Vitest ウォッチモード |
 | `npm run test:e2e` | Playwright E2Eテスト |
+| `npm run pack` | パッケージング（ディレクトリ） |
+| `npm run dist` | インストーラー作成 |
 
-### テスト構成
+## テスト構成
 
 - **単体テスト**: `src/main/__tests__/*.spec.ts`
 - **E2Eテスト**: `e2e/*.spec.ts`
+
+## 注意事項
+
+- preloadスクリプトはsandbox環境で動作し、`require`は使用不可。`contextBridge`経由でrendererにAPIを公開する
+- IPC通信のチャネル名は`src/shared/ipc-channels.ts`で一元管理。ハードコードしない
 
 ## CI/CD
 
