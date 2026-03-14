@@ -89,7 +89,7 @@
   }
 
   function handleGlobalKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' && !event.isComposing) {
       event.preventDefault();
       if (saveTimeout) {
         clearTimeout(saveTimeout);
@@ -103,7 +103,7 @@
   }
 
   function handleTextareaKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Tab') {
+    if (event.key === 'Tab' && !event.isComposing) {
       event.preventDefault();
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
