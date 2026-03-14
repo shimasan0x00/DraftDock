@@ -22,9 +22,9 @@ Download from [Releases](https://github.com/shimasan0x00/DraftDock/releases).
   <img src=".readme/draftdock.png" alt="DraftDock main window" width="600">
 </p>
 
-- **Instant access via hotkey** - Press `Ctrl+Shift+D` to show the draft window from any application
-- **One-action copy** - `Ctrl+Enter` copies to clipboard and closes the window
-- **One-action clear** - `Ctrl+Shift+L` clears the draft
+- **Instant access via hotkey** - Press `Ctrl/Cmd+Shift+D` to show the draft window from any application
+- **One-action copy** - `Ctrl/Cmd+Enter` copies to clipboard and closes the window
+- **One-action clear** - `Ctrl/Cmd+Shift+L` clears the draft
 - **Drafts persist** - Drafts are restored even after closing the window or restarting the app
 
 <p align="center">
@@ -44,12 +44,12 @@ Download from [Releases](https://github.com/shimasan0x00/DraftDock/releases).
 
 | Action | Key |
 |--------|-----|
-| Show/Hide | `Ctrl+Shift+D` |
-| Copy & Close | `Ctrl+Enter` |
-| Clear | `Ctrl+Shift+L` |
+| Show/Hide | `Ctrl/Cmd+Shift+D` |
+| Copy & Close | `Ctrl/Cmd+Enter` |
+| Clear | `Ctrl/Cmd+Shift+L` |
 | Close | `Escape` |
 
-> **Note**: On macOS, Ctrl-based keybindings are currently used as well. You can customize them from the settings screen.
+> **Note**: On macOS, `Cmd` is used instead of `Ctrl`. You can customize all hotkeys from the settings screen.
 
 All hotkeys can be customized from the settings screen (tray icon → Settings).
 
